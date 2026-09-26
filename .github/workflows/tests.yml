@@ -1,0 +1,71 @@
+# Tests for robot-report-card. NOTE: this workflow has not yet run on GitHub (written and linted offline).
+name: tests
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "17 4 * * 1"  # weekly: full benchmark bars (RRC_BENCH_FULL=1)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  HF_HUB_OFFLINE: "1"
+  PYTHONUNBUFFERED: "1"
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  light:
+    # record / tag / list / score / eval scripted: no torch, no lerobot
+    name: light (${{ matrix.os }}, py${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-14]
+        python: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Install
+        run: |
+          uv venv -p ${{ matrix.python }}
+          uv pip install -e ".[dev,score,sim]"
+      - name: Lint
+        run: uv run --no-sync ruff check .
+      - name: Test
+        run: uv run --no-sync pytest -q
+
+  heavy:
+    # torch + lerobot on CPU; only on pushes to main, the weekly schedule and manual runs
+    if: >-
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    name: heavy (ubuntu, py3.11, CPU torch + lerobot)
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Install CPU torch first (the default Linux wheel is the multi-GB CUDA build)
+        run: |
+          uv venv -p 3.11
+          uv pip install "torch==2.10.*" --index-url https://download.pytorch.org/whl/cpu
+      - name: Install package with all extras
+        run: uv pip install -e ".[dev,score,sim,eval,lerobot]" scipy
+      - name: Check torch is still the CPU build
+        run: uv run --no-sync python -c "import torch; assert not torch.version.cuda, torch.__version__; print(torch.__version__)"
+      - name: Test
+        run: uv run --no-sync pytest -q
+      - name: Full benchmark bars (weekly / manual)
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        env:
+          RRC_BENCH_FULL: "1"
+          RRC_E2E_FULL: "1"
+        run: uv run --no-sync pytest -q tests/test_p2_3_bench.py tests/test_p3_1_bench.py tests/test_p3_8_e2e.py

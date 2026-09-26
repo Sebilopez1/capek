@@ -1,0 +1,82 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "robot-report-card"
+dynamic = ["version"]
+description = "Is it your data or your model? Dataset scoring and honest policy evaluation for LeRobot / SO-101 imitation learning."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE", "src/robot_report_card/sim/assets/so101/LICENSE"]
+requires-python = ">=3.10"
+authors = [{ name = "Sebi Lopez" }]
+keywords = ["robotics", "imitation-learning", "lerobot", "so-101", "dataset-quality", "evaluation"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = ["numpy>=1.25"]
+
+[project.urls]
+Homepage = "https://github.com/Sebilopez1/robot-report-card"
+Issues = "https://github.com/Sebilopez1/robot-report-card/issues"
+Changelog = "https://github.com/Sebilopez1/robot-report-card/blob/main/CHANGELOG.md"
+
+[project.optional-dependencies]
+sim = ["mujoco>=3.2"]
+# numpy 2.4 crashes lerobot 0.4.4's save_episode on shape-(1,) features (research brief G1), so the pin lives here
+lerobot = ["lerobot==0.4.4", "numpy<2.4"]
+# `rrc score`: reads LeRobot parquet directly (no lerobot / torch)
+score = ["pyarrow>=15"]
+# `rrc eval` / `rrc compare` / `rrc train-bc`: sim rollouts + the torch MLP (`bc:`); `lerobot:` needs the lerobot extra
+eval = ["mujoco>=3.2", "torch>=2.2"]
+dev = ["pytest>=7", "ruff>=0.4"]
+
+[project.scripts]
+rrc = "robot_report_card.cli:main"
+
+[tool.hatch.version]
+path = "src/robot_report_card/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/robot_report_card"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/robot_report_card",
+    "tests",
+    "README.md",
+    "LICENSE",
+    "NOTICE",
+    # parity tests compare the engine / stats against the research spikes
+    "docs/spikes/phase2_score_proto.py",
+    "docs/spikes/phase3_stats.py",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["tests"]
+filterwarnings = [
+    # datasets' float(value) on shape-(1,) arrays: the numpy<2.4 deprecation behind research brief G1
+    "ignore:Conversion of an array with ndim > 0 to a scalar:DeprecationWarning",
+]
+markers = ["lerobot: needs the optional lerobot extra", "sim: needs mujoco"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+extend-exclude = ["docs/spikes"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+
+[tool.ruff.format]
+exclude = ["*.md"]

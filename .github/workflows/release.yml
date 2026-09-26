@@ -1,0 +1,70 @@
+# Publish robot-report-card to PyPI with trusted publishing (OIDC): no API tokens or secrets are stored.
+# NOTE: this workflow has not yet run on GitHub. Before the first release, Sebi (see RELEASE.md):
+#   1. creates the GitHub environment `pypi` with himself as required reviewer, and
+#   2. registers a pending publisher on PyPI: repository <owner>/robot-report-card, workflow release.yml,
+#      environment pypi (and the same on TestPyPI with environment testpypi for the dry run).
+# The publish job only starts when a GitHub release is published, and then waits for the `pypi` approval.
+name: release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:  # TestPyPI dry run only
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build + check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Refuse to build while the owner placeholder is present (PyPI versions can never be re-uploaded)
+        run: python3 tools/set_github_owner.py --check
+      - uses: astral-sh/setup-uv@v5
+      - name: Build sdist and wheel
+        run: uv build
+      - name: twine check
+        run: uvx twine check --strict dist/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+
+  testpypi:
+    name: publish to TestPyPI (dry run)
+    if: github.event_name == 'workflow_dispatch'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/robot-report-card
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
+  pypi:
+    name: publish to PyPI
+    if: github.event_name == 'release'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/robot-report-card
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
