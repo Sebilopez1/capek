@@ -43,7 +43,7 @@ def test_tests_workflow_matrix_and_cpu_torch() -> None:
     assert any('".[dev,score,sim]"' in s.get("run", "") for s in light["steps"])
     heavy = wf["jobs"]["heavy"]
     runs = "\n".join(s.get("run", "") for s in heavy["steps"])
-    assert 'torch==2.10.*" --index-url https://download.pytorch.org/whl/cpu' in runs
+    assert '"torch==2.10.*" "torchvision==0.25.*" --index-url https://download.pytorch.org/whl/cpu' in runs
     assert runs.index("download.pytorch.org") < runs.index(".[dev,score,sim,eval,lerobot]")
     assert "schedule" in wf["on"] and any(s.get("env", {}).get("RRC_BENCH_FULL") == "1" for s in heavy["steps"])
 

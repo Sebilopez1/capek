@@ -53,14 +53,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
-      - name: Install CPU torch first (the default Linux wheel is the multi-GB CUDA build)
+      - name: Install CPU torch + torchvision first (the default Linux wheels are the multi-GB CUDA builds)
+        # torchvision must come from the same CPU index as torch, or its C++ ops fail to load
+        # ("operator torchvision::nms does not exist").
         run: |
           uv venv -p 3.11
-          uv pip install "torch==2.10.*" --index-url https://download.pytorch.org/whl/cpu
+          uv pip install "torch==2.10.*" "torchvision==0.25.*" --index-url https://download.pytorch.org/whl/cpu
       - name: Install package with all extras
         run: uv pip install -e ".[dev,score,sim,eval,lerobot]" scipy
       - name: Check torch is still the CPU build
-        run: uv run --no-sync python -c "import torch; assert not torch.version.cuda, torch.__version__; print(torch.__version__)"
+        run: uv run --no-sync python -c "import torch, torchvision; assert not torch.version.cuda, torch.__version__; torchvision.ops.nms; import lerobot.datasets.lerobot_dataset; print(torch.__version__, torchvision.__version__)"
       - name: Test
         run: uv run --no-sync pytest -q
       - name: Full benchmark bars (weekly / manual)
