@@ -40,7 +40,15 @@ def _common(p: argparse.ArgumentParser) -> None:
     p.add_argument("--eval-seed", type=int, default=DEFAULT_EVAL_SEED, help=f"base seed (default {DEFAULT_EVAL_SEED})")
     p.add_argument("--max-steps", type=int, default=DEFAULT_MAX_STEPS, help="frames per episode (default 90)")
     p.add_argument("--ci", choices=CI_METHODS, default="wilson", help="CI for success rates (default wilson)")
-    p.add_argument("--threads", type=int, default=None, help="torch CPU threads for learned policies")
+    p.add_argument(
+        "--threads",
+        type=int,
+        default=None,
+        help=(
+            "torch CPU threads for learned policies "
+            "(keep it fixed when comparing runs; a different thread count can change results)"
+        ),
+    )
     p.add_argument("--json-out", help="JSON report path (default ./<policy>.rrc_eval.json / ...rrc_compare.json)")
     p.add_argument("--overwrite", action="store_true", help="replace an existing --json-out file")
     p.add_argument("--json", action="store_true", help="print the JSON report instead of the table")

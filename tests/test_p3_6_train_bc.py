@@ -92,10 +92,14 @@ TRAIN_AND_EVAL = textwrap.dedent(
 )
 
 
-def test_same_seed_same_weights_and_rollouts_across_processes_and_threads(work: Path) -> None:
+def test_same_seed_same_weights_and_rollouts_across_processes(work: Path) -> None:
+    # Same seed + same thread count in two separate processes must give identical weights and rollouts.
+    # Different thread counts are NOT promised to match: on GitHub's CI runners 1 vs 2 torch threads changed the
+    # weights (float reduction order), even though they matched on the crew's machine.
     results = []
-    for threads in ("1", "2"):
-        out, report = work / f"det{threads}", work / f"det{threads}.json"
+    for run in ("a", "b"):
+        threads = "1"
+        out, report = work / f"det{run}", work / f"det{run}.json"
         r = subprocess.run(
             [sys.executable, "-c", TRAIN_AND_EVAL, str(work / "ds"), str(out), threads, str(report)],
             capture_output=True,

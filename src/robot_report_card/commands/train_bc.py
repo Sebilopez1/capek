@@ -44,7 +44,15 @@ def add_parser(sub: argparse._SubParsersAction) -> None:
     p.add_argument("--epochs", type=int, default=40, help="default 40")
     p.add_argument("--batch-size", type=int, default=256, help="default 256")
     p.add_argument("--lr", type=float, default=1e-3, help="Adam learning rate (default 1e-3)")
-    p.add_argument("--threads", type=int, default=None, help="torch CPU threads")
+    p.add_argument(
+        "--threads",
+        type=int,
+        default=None,
+        help=(
+            "torch CPU threads (reproducible for the same seed and thread count; "
+            "a different thread count can change the weights)"
+        ),
+    )
     p.add_argument("--overwrite", action="store_true", help="replace an existing rrc checkpoint at --out")
     p.set_defaults(func=run)
 
