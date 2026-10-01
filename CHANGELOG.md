@@ -3,7 +3,7 @@
 All notable changes to this project are listed here. The format follows [Keep a Changelog](https://keepachangelog.com/),
 and versions follow [Semantic Versioning](https://semver.org/). Before 1.0, minor versions may change the CLI.
 
-## [0.1.0] — unreleased
+## [0.1.0] — 2026-10-01
 
 First public release (alpha).
 
