@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use Robot Report Card in your research, please cite it as below."
+title: "Robot Report Card: dataset scoring and honest policy evaluation for LeRobot"
+type: software
+authors:
+  - given-names: Sebi
+    family-names: Lopez
+repository-code: "https://github.com/Sebilopez1/robot-report-card"
+url: "https://pypi.org/project/robot-report-card/"
+license: Apache-2.0
+version: 0.1.0
+date-released: "2026-10-01"
+keywords:
+  - robotics
+  - imitation-learning
+  - lerobot
+  - so-101
+  - dataset-quality
+  - evaluation
