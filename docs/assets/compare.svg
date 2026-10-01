@@ -1,0 +1,105 @@
+<svg class="rich-terminal" viewBox="0 0 1287 416.0" xmlns="http://www.w3.org/2000/svg">
+    <!-- Generated with Rich https://www.textualize.io -->
+    <style>
+
+    
+    
+
+    .terminal-875805610-matrix {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+        font-size: 20px;
+        line-height: 24.4px;
+        font-variant-east-asian: full-width;
+    }
+
+    .terminal-875805610-title {
+        font-size: 18px;
+        font-weight: bold;
+        font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    }
+
+    .terminal-875805610-r1 { fill: #7ee787;font-weight: bold }
+.terminal-875805610-r2 { fill: #f0f6fc;font-weight: bold }
+.terminal-875805610-r3 { fill: #c9d1d9 }
+.terminal-875805610-r4 { fill: #79c0ff;font-weight: bold }
+.terminal-875805610-r5 { fill: #56d364;font-weight: bold }
+.terminal-875805610-r6 { fill: #8b949e }
+    </style>
+
+    <defs>
+    <clipPath id="terminal-875805610-clip-terminal">
+      <rect x="0" y="0" width="1267.8" height="365.0" />
+    </clipPath>
+    <clipPath id="terminal-875805610-line-0">
+    <rect x="0" y="1.5" width="1268.8" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-875805610-line-1">
+    <rect x="0" y="25.9" width="1268.8" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-875805610-line-2">
+    <rect x="0" y="50.3" width="1268.8" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-875805610-line-3">
+    <rect x="0" y="74.7" width="1268.8" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-875805610-line-4">
+    <rect x="0" y="99.1" width="1268.8" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-875805610-line-5">
+    <rect x="0" y="123.5" width="1268.8" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-875805610-line-6">
+    <rect x="0" y="147.9" width="1268.8" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-875805610-line-7">
+    <rect x="0" y="172.3" width="1268.8" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-875805610-line-8">
+    <rect x="0" y="196.7" width="1268.8" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-875805610-line-9">
+    <rect x="0" y="221.1" width="1268.8" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-875805610-line-10">
+    <rect x="0" y="245.5" width="1268.8" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-875805610-line-11">
+    <rect x="0" y="269.9" width="1268.8" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-875805610-line-12">
+    <rect x="0" y="294.3" width="1268.8" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-875805610-line-13">
+    <rect x="0" y="318.7" width="1268.8" height="24.65"/>
+            </clipPath>
+    </defs>
+
+    <rect fill="#0d1117" stroke="rgba(255,255,255,0.35)" stroke-width="1" x="1" y="1" width="1285" height="414" rx="8"/><text class="terminal-875805610-title" fill="#c9d1d9" text-anchor="middle" x="642" y="27">rrc&#160;compare</text>
+            <g transform="translate(26,22)">
+            <circle cx="0" cy="0" r="7" fill="#ff5f57"/>
+            <circle cx="22" cy="0" r="7" fill="#febc2e"/>
+            <circle cx="44" cy="0" r="7" fill="#28c840"/>
+            </g>
+        
+    <g transform="translate(9, 41)" clip-path="url(#terminal-875805610-clip-terminal)">
+    
+    <g class="terminal-875805610-matrix">
+    <text class="terminal-875805610-r1" x="0" y="20" textLength="24.4" clip-path="url(#terminal-875805610-line-0)">$&#160;</text><text class="terminal-875805610-r2" x="24.4" y="20" textLength="488" clip-path="url(#terminal-875805610-line-0)">rrc&#160;compare&#160;bc:ckpt/all&#160;bc:ckpt/filtered</text><text class="terminal-875805610-r3" x="1268.8" y="20" textLength="12.2" clip-path="url(#terminal-875805610-line-0)">
+</text><text class="terminal-875805610-r4" x="0" y="44.4" textLength="1195.6" clip-path="url(#terminal-875805610-line-1)">policy&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;|&#160;n&#160;&#160;&#160;|&#160;successes&#160;|&#160;rate&#160;&#160;|&#160;Wilson&#160;95%&#160;CI&#160;|&#160;median&#160;final&#160;error&#160;|&#160;any-step&#160;rate</text><text class="terminal-875805610-r3" x="1268.8" y="44.4" textLength="12.2" clip-path="url(#terminal-875805610-line-1)">
+</text><text class="terminal-875805610-r3" x="0" y="68.8" textLength="1085.8" clip-path="url(#terminal-875805610-line-2)">A:&#160;bc:ckpt/all&#160;&#160;&#160;&#160;&#160;&#160;|&#160;200&#160;|&#160;0&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;|&#160;0.0%&#160;&#160;|&#160;0.0%&#160;–&#160;1.9%&#160;&#160;&#160;|&#160;23.6&#160;cm&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;|&#160;2.5%</text><text class="terminal-875805610-r3" x="1268.8" y="68.8" textLength="12.2" clip-path="url(#terminal-875805610-line-2)">
+</text><text class="terminal-875805610-r3" x="0" y="93.2" textLength="1098" clip-path="url(#terminal-875805610-line-3)">B:&#160;bc:ckpt/filtered&#160;|&#160;200&#160;|&#160;29&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;|&#160;14.5%&#160;|&#160;10.3%&#160;–&#160;20.0%&#160;|&#160;3.6&#160;cm&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;|&#160;20.5%</text><text class="terminal-875805610-r3" x="1268.8" y="93.2" textLength="12.2" clip-path="url(#terminal-875805610-line-3)">
+</text><text class="terminal-875805610-r3" x="1268.8" y="117.6" textLength="12.2" clip-path="url(#terminal-875805610-line-4)">
+</text><text class="terminal-875805610-r3" x="0" y="142" textLength="951.6" clip-path="url(#terminal-875805610-line-5)">paired&#160;on&#160;the&#160;same&#160;200&#160;seeds:&#160;both&#160;succeed&#160;0,&#160;A&#160;only&#160;0,&#160;B&#160;only&#160;29,&#160;neither&#160;171</text><text class="terminal-875805610-r3" x="1268.8" y="142" textLength="12.2" clip-path="url(#terminal-875805610-line-5)">
+</text><text class="terminal-875805610-r5" x="0" y="166.4" textLength="24.4" clip-path="url(#terminal-875805610-line-6)">✔&#160;</text><text class="terminal-875805610-r5" x="24.4" y="166.4" textLength="1232.2" clip-path="url(#terminal-875805610-line-6)">B&#160;(bc:ckpt/filtered)&#160;is&#160;better&#160;than&#160;A&#160;(bc:ckpt/all)&#160;(Δ&#160;=&#160;+14.5&#160;pts,&#160;95%&#160;CI&#160;+9.9&#160;to&#160;+20.0;&#160;McNemar&#160;p&#160;=</text><text class="terminal-875805610-r3" x="1268.8" y="166.4" textLength="12.2" clip-path="url(#terminal-875805610-line-6)">
+</text><text class="terminal-875805610-r5" x="24.4" y="190.8" textLength="109.8" clip-path="url(#terminal-875805610-line-7)">3.7e-09).</text><text class="terminal-875805610-r3" x="1268.8" y="190.8" textLength="12.2" clip-path="url(#terminal-875805610-line-7)">
+</text><text class="terminal-875805610-r6" x="0" y="215.2" textLength="1256.6" clip-path="url(#terminal-875805610-line-8)">With&#160;n&#160;=&#160;200&#160;and&#160;this&#160;much&#160;disagreement&#160;between&#160;the&#160;checkpoints,&#160;this&#160;test&#160;detects&#160;differences&#160;of&#160;about</text><text class="terminal-875805610-r3" x="1268.8" y="215.2" textLength="12.2" clip-path="url(#terminal-875805610-line-8)">
+</text><text class="terminal-875805610-r6" x="0" y="239.6" textLength="414.8" clip-path="url(#terminal-875805610-line-9)">9.0&#160;points&#160;or&#160;more&#160;with&#160;80%&#160;power.</text><text class="terminal-875805610-r3" x="1268.8" y="239.6" textLength="12.2" clip-path="url(#terminal-875805610-line-9)">
+</text><text class="terminal-875805610-r6" x="0" y="264" textLength="1244.4" clip-path="url(#terminal-875805610-line-10)">This&#160;compares&#160;two&#160;fixed&#160;checkpoints;&#160;the&#160;CI&#160;covers&#160;rollout&#160;noise&#160;only.&#160;Retraining&#160;the&#160;same&#160;recipe&#160;with</text><text class="terminal-875805610-r3" x="1268.8" y="264" textLength="12.2" clip-path="url(#terminal-875805610-line-10)">
+</text><text class="terminal-875805610-r6" x="0" y="288.4" textLength="1268.8" clip-path="url(#terminal-875805610-line-11)">another&#160;seed&#160;moved&#160;success&#160;by&#160;10–15&#160;points&#160;on&#160;this&#160;task.&#160;A&#160;claim&#160;about&#160;data&#160;or&#160;training&#160;settings&#160;needs&#160;≥</text><text class="terminal-875805610-r3" x="1268.8" y="288.4" textLength="12.2" clip-path="url(#terminal-875805610-line-11)">
+</text><text class="terminal-875805610-r6" x="0" y="312.8" textLength="658.8" clip-path="url(#terminal-875805610-line-12)">3&#160;training&#160;seeds&#160;per&#160;side&#160;with&#160;a&#160;consistent&#160;direction.</text><text class="terminal-875805610-r3" x="1268.8" y="312.8" textLength="12.2" clip-path="url(#terminal-875805610-line-12)">
+</text><text class="terminal-875805610-r6" x="0" y="337.2" textLength="1207.8" clip-path="url(#terminal-875805610-line-13)">success&#160;=&#160;gripper&#160;tip&#160;within&#160;2&#160;cm&#160;of&#160;the&#160;target&#160;on&#160;the&#160;final&#160;frame&#160;(90&#160;frames,&#160;3&#160;s);&#160;LeRobot&#x27;s&#160;eval</text><text class="terminal-875805610-r3" x="1268.8" y="337.2" textLength="12.2" clip-path="url(#terminal-875805610-line-13)">
+</text><text class="terminal-875805610-r6" x="0" y="361.6" textLength="329.4" clip-path="url(#terminal-875805610-line-14)">counts&#160;success&#160;at&#160;any&#160;step.</text><text class="terminal-875805610-r3" x="1268.8" y="361.6" textLength="12.2" clip-path="url(#terminal-875805610-line-14)">
+</text>
+    </g>
+    </g>
+</svg>

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" role="img" aria-label="Robot Report Card">
+<rect width="1280" height="320" fill="#ffffff"/>
+<!-- robot arm -->
+<g transform="translate(120,58)" stroke="#1f2328" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none">
+  <rect x="10" y="176" width="110" height="24" rx="6" fill="#1f2328" stroke="none"/>
+  <line x1="65" y1="176" x2="65" y2="140"/>
+  <line x1="65" y1="140" x2="135" y2="60"/>
+  <line x1="135" y1="60" x2="215" y2="92"/>
+  <circle cx="65" cy="140" r="12" fill="#ffffff"/>
+  <circle cx="135" cy="60" r="12" fill="#ffffff"/>
+  <path d="M215 92 l26 -8 M215 92 l18 20" stroke="#0969da"/>
+</g>
+<!-- report card -->
+<g transform="translate(330,52)">
+  <rect width="190" height="216" rx="14" fill="#f6f8fa" stroke="#d1d9e0" stroke-width="2"/>
+  <text x="22" y="40" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#59636e" letter-spacing="1.5">EPISODES</text>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15">
+    <rect x="22" y="58" width="146" height="26" rx="6" fill="none"/>
+    <text x="24" y="78" fill="#1a7f37">✔ ok</text><text x="150" y="78" fill="#59636e" text-anchor="end">0.4</text>
+    <text x="24" y="108" fill="#1a7f37">✔ ok</text><text x="150" y="108" fill="#59636e" text-anchor="end">1.1</text>
+    <text x="24" y="138" fill="#cf222e" font-weight="700">⚠ FLAG</text><text x="150" y="138" fill="#cf222e" text-anchor="end">10.0</text>
+    <text x="24" y="168" fill="#1a7f37">✔ ok</text><text x="150" y="168" fill="#59636e" text-anchor="end">0.8</text>
+    <text x="24" y="198" fill="#cf222e" font-weight="700">⚠ FLAG</text><text x="150" y="198" fill="#cf222e" text-anchor="end">4.9</text>
+  </g>
+</g>
+<!-- text -->
+<g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <text x="590" y="138" font-size="62" font-weight="800" fill="#1f2328" letter-spacing="-1">Robot Report Card</text>
+  <text x="592" y="186" font-size="28" font-weight="600" fill="#0969da">Is it your data or your model?</text>
+  <text x="592" y="232" font-size="20" fill="#59636e">Dataset scoring and honest policy evaluation</text>
+  <text x="592" y="260" font-size="20" fill="#59636e">for LeRobot and low-cost arms like the SO-101.</text>
+</g>
+</svg>

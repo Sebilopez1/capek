@@ -1,35 +1,82 @@
-# Robot Report Card
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Sebilopez1/robot-report-card/main/docs/assets/banner-dark.svg">
+    <img alt="Robot Report Card: is it your data or your model? Dataset scoring and honest policy evaluation for LeRobot and low-cost arms like the SO-101." src="https://raw.githubusercontent.com/Sebilopez1/robot-report-card/main/docs/assets/banner-light.svg" width="100%">
+  </picture>
+</p>
 
-**Is it your data or your model?** Dataset scoring and honest policy evaluation for imitation learning with
-[LeRobot](https://github.com/huggingface/lerobot) and low-cost arms like the SO-100 / SO-101.
+<p align="center">
+  <a href="https://pypi.org/project/robot-report-card/"><img alt="PyPI" src="https://img.shields.io/pypi/v/robot-report-card?color=0969da"></a>
+  <a href="https://pypi.org/project/robot-report-card/"><img alt="Python 3.10 to 3.12" src="https://img.shields.io/pypi/pyversions/robot-report-card"></a>
+  <a href="https://github.com/Sebilopez1/robot-report-card/actions/workflows/tests.yml"><img alt="Tests" src="https://github.com/Sebilopez1/robot-report-card/actions/workflows/tests.yml/badge.svg"></a>
+  <a href="https://github.com/Sebilopez1/robot-report-card/blob/main/LICENSE"><img alt="License: Apache 2.0" src="https://img.shields.io/badge/license-Apache%202.0-blue"></a>
+</p>
 
-You record demos, train a policy, and it performs badly. Robot Report Card turns "eyeball the rollouts and guess" into
-evidence: which episodes in your dataset look like junk and why, a success rate with a confidence interval, and whether
-checkpoint B really beats checkpoint A. It then puts all of that on a one-page report card that says what the evidence
-is *consistent with*, and what it can't tell.
+<p align="center">
+  <a href="#-quickstart">Quickstart</a> ·
+  <a href="#-score-a-dataset-you-already-have">Score</a> ·
+  <a href="#-evaluate-and-compare-policies">Evaluate</a> ·
+  <a href="#-the-report-card">Report card</a> ·
+  <a href="#-what-it-cant-tell-you">Limits</a> ·
+  <a href="#-roadmap">Roadmap</a>
+</p>
+
+---
+
+You record demos, train a policy, and it performs badly. Was it the data or the model?
+**Robot Report Card (`rrc`)** turns "eyeball the rollouts and guess" into evidence: which episodes in your
+[LeRobot](https://github.com/huggingface/lerobot) dataset look like junk and why, a success rate with a confidence
+interval, and whether checkpoint B really beats checkpoint A. It puts all of it on a one-page report card that says
+what the evidence is *consistent with*, and what it can't tell.
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Sebilopez1/robot-report-card/main/docs/assets/result-dark.svg">
+    <img alt="Bar chart: policy A trained on all 90 demos succeeds 0 of 200 times; policy B trained on the 59 demos rrc kept succeeds 29 of 200 (14.5%). Difference +14.5 points, 95% CI +9.9 to +20.0, McNemar p = 3.7e-9. One task, in simulation." src="https://raw.githubusercontent.com/Sebilopez1/robot-report-card/main/docs/assets/result-light.svg" width="92%">
+  </picture>
+</p>
+
+## ✨ Highlights
+
+- 🔎 **Find junk episodes**: `rrc score` ranks every episode on jitter, jerk, hesitation, dithering, saturated actions
+  and commands the arm doesn't follow, and says *why* each one was flagged. It reads the parquet files directly and
+  **never writes into your dataset**.
+- 📊 **Honest A vs B**: `rrc compare` runs two policies on the same seeds and reports Wilson intervals, an exact McNemar
+  test, the size of the difference, and the smallest difference the test could have detected.
+- 🧾 **One-page report card**: `rrc report` joins everything into Data / Policy / Regression / Verdict / Can't tell,
+  in the terminal, Markdown or HTML.
+- 🦾 **Built for low-cost arms**: SO-100 / SO-101 joint names, LeRobot v3.0, v2.1 and v2.0 datasets, and a bundled
+  MuJoCo SO-101 reach task.
+- 💻 **Laptop-only**: runs on a CPU. No GPU, no account, no network calls after install.
+
+## 🚀 Quickstart
 
 ```bash
 pip install "robot-report-card[score]"
-rrc score path/to/lerobot_dataset
+rrc score path/to/lerobot_dataset --only-flagged
 ```
 
-```text
-90 episodes, 8100 frames, 30 fps, LeRobot v3.0, keys observation.state / action
-flagged: 25/90 (27.8%): 25 by motion score > 3.5, 0 with hard flags
-top reasons: action_tv_ratio 20, action_hf_energy 20, track_err 20, idle_frac 5
-Motion quality can't detect failed attempts that move normally (early stop, wrong goal). Only outcome evidence (success column or labels) can.
-```
+Want the whole loop in simulation (record → score → train two policies → compare → report card)? That takes about
+a minute on a laptop; see [the full demo](#-evaluate-and-compare-policies).
 
-```text
-$ rrc compare bc:ckpt/all bc:ckpt/filtered
-A: bc:ckpt/all      | 200 | 0         | 0.0%  | 0.0% – 1.9%   | ...
-B: bc:ckpt/filtered | 200 | 29        | 14.5% | 10.3% – 20.0% | ...
-B (bc:ckpt/filtered) is better than A (bc:ckpt/all) (Δ = +14.5 pts, 95% CI +9.9 to +20.0; McNemar p = 3.7e-09).
-```
+## 🧭 How it fits together
 
-Everything runs on a laptop CPU. No GPU, no account, and no network calls after install. **Status: 0.1.0, alpha.**
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Sebilopez1/robot-report-card/main/docs/assets/pipeline-dark.svg">
+    <img alt="Pipeline: rrc record (simulated demos) → rrc export (LeRobot format) → rrc score (find junk episodes, the main feature) → rrc train-bc (teach a policy) → rrc eval and compare (test it, A vs B) → rrc report (one-page card). Real-robot users start at rrc score." src="https://raw.githubusercontent.com/Sebilopez1/robot-report-card/main/docs/assets/pipeline-light.svg" width="100%">
+  </picture>
+</p>
 
-## Install
+| Command | What it does | Needs |
+|---|---|---|
+| `rrc score` | Score every episode of a LeRobot dataset, flag the junk | `[score]` |
+| `rrc record` / `tag` / `list` / `export` | Record simulated SO-101 demos, label them, export to LeRobot format | `[sim,lerobot]` |
+| `rrc train-bc` | Train a small behavior-cloning policy on the CPU, in seconds | `[score,eval]` |
+| `rrc eval` / `compare` | Success rate with CIs; paired A vs B test | `[sim,eval]` |
+| `rrc report` | The one-page report card | base |
+
+## 📦 Install
 
 Python 3.10–3.12. Pick the extras for what you want to do:
 
@@ -41,15 +88,20 @@ Python 3.10–3.12. Pick the extras for what you want to do:
 | Evaluate / compare / train small policies | `pip install "robot-report-card[sim,eval]"` (+ `score` for `train-bc`) |
 | Everything in this README | `pip install "robot-report-card[score,sim,eval,lerobot]"` |
 
+<details>
+<summary><b>Install notes</b> (torch size on Linux, numpy pin, tested Pythons)</summary>
+
 - **torch on Linux:** pip's default torch wheel is the CUDA build. The `eval` extra is then about **5.4 GB**, and all
   extras about **10 GB**. Everything here runs on the CPU, so install the CPU-only wheel first:
-  `pip install torch --index-url https://download.pytorch.org/whl/cpu`. (We document this but haven't tested it: that
-  index is blocked in our build environment.) On macOS the PyPI torch wheels are CPU/MPS only and much smaller. A full
-  install on an Apple Silicon MacBook Air was about 1.8 GB.
+  `pip install torch --index-url https://download.pytorch.org/whl/cpu` (this is what our CI does). On macOS the PyPI
+  torch wheels are CPU/MPS only and much smaller. A full install on an Apple Silicon MacBook Air was about 1.8 GB.
 - **numpy:** the `lerobot` extra pins `numpy<2.4`, because numpy 2.4 crashes lerobot 0.4.4 when it saves an episode.
-- The heavy extras (`eval`, `lerobot`) are tested on Python 3.11. The rest is tested on 3.10, 3.11 and 3.12.
+- The heavy extras (`eval`, `lerobot`) are tested on Python 3.11. The rest is tested on 3.10, 3.11 and 3.12, on Linux
+  and macOS.
 
-## Score a dataset you already have
+</details>
+
+## 🔎 Score a dataset you already have
 
 `rrc score` reads a LeRobot dataset on disk (v3.0, v2.1 or v2.0) with pyarrow alone. It needs no lerobot, no torch
 and no simulator, and **it never writes into the dataset**.
@@ -61,17 +113,97 @@ rrc score ~/rrc-data/mine                        # table + summary; JSON report 
 rrc score ~/rrc-data/mine --only-flagged --json-out reports/mine.json --overwrite
 ```
 
+<p align="center">
+  <img alt="Terminal output of rrc score --only-flagged on a 90-episode simulated dataset: 25 of 90 episodes flagged, each with its score, outcome and the reasons, such as action chatter and commands not followed." src="https://raw.githubusercontent.com/Sebilopez1/robot-report-card/main/docs/assets/score.svg" width="92%">
+</p>
+
 Each row shows `ep | frames | quality (ok/FLAG/HARD) | score | outcome (+source) | why`.
+
 - **Quality** is about motion only: jitter, jerk, hesitation, dithering, actions pinned at their limits, commands the arm
   doesn't follow. A robust z-score is computed per signal against *this* dataset, and an episode is flagged when its
-  largest z is above 3.5 (`--threshold`). **HARD** means a recording with a hard defect: NaN/inf values, a joint whose reading never
-  changes while its command moves, dropped frames, ≥ 20% saturated actions, or an episode that's too short.
+  largest z is above 3.5 (`--threshold`). **HARD** means a recording with a hard defect: NaN/inf values, a joint whose
+  reading never changes while its command moves, dropped frames, ≥ 20% saturated actions, or an episode that's too short.
 - **Outcome** comes only from evidence: a human label in `meta/rrc_tags.json`, otherwise the last-frame `next.success`,
   otherwise `unknown`.
 - Column names differ between datasets? Use `--state-key` / `--action-key`. The JSON report is never silently
   replaced: to re-run `rrc score` on the same dataset, pass `--overwrite` (or pick another `--json-out`).
 
-## Record, tag and export simulated episodes
+## 🧪 Evaluate and compare policies
+
+`rrc eval` rolls a policy out in the simulated SO-101 reach task and reports its success rate. `rrc compare` runs two
+policies on the **same** seeds and tests whether B differs from A. `rrc train-bc` trains a small behavior-cloning MLP on
+an exported dataset, so there's a real A vs B to compare. The full demo (about 35–50 s):
+
+```bash
+pip install "robot-report-card[score,sim,eval,lerobot]"
+rrc record --mix clean:60,noise025:10,random:10,hesitation:5,wrong:5 --seed 30000 --out runs/mix
+rrc export runs/mix --out datasets/mix --repo-id local/mix
+rrc score datasets/mix --json-out mix.score.json
+rrc train-bc datasets/mix --out ckpt/all                                                        # A: every episode
+rrc train-bc datasets/mix --out ckpt/filtered --keep ok-and-success --score-json mix.score.json  # B: quality ok AND succeeded
+rrc compare bc:ckpt/all bc:ckpt/filtered --json-out compare.json
+rrc report --score mix.score.json --compare compare.json --md card.md --html card.html
+```
+
+<p align="center">
+  <img alt="Terminal output of rrc compare: A 0 of 200, B 29 of 200, paired counts, delta +14.5 points with 95% CI +9.9 to +20.0, exact McNemar p = 3.7e-9, minimum detectable difference about 9 points." src="https://raw.githubusercontent.com/Sebilopez1/robot-report-card/main/docs/assets/compare.svg" width="92%">
+</p>
+
+Policies are `scripted`, `random`, `bc:<checkpoint dir>` or `lerobot:<pretrained_model dir>`. Defaults are 200
+episodes and `--eval-seed 900000`, and episode i always starts from the same target.
+
+<details>
+<summary><b>How to read <code>rrc compare</code></b></summary>
+
+- **Rate with a Wilson 95% CI** for each policy: the range the true success rate plausibly lies in. At n = 200 it's
+  about ±7 points near 50%.
+- **Paired counts** (both / A only / B only / neither): only the episodes where the two policies disagree carry information.
+- **Exact McNemar p** tests whether "B only" and "A only" are unbalanced. The verdict names the direction when p < 0.05.
+- **Δ with a 95% CI** (Newcombe) is the size of the difference, in points of success rate.
+- **MDE:** "this test detects differences of about X points or more with 80% power", based on how much the two
+  policies disagreed. *"No detectable difference"* means the difference is smaller than this test can see at this n.
+  It does **not** mean the policies are equal. If the exact test and the CI disagree right at the 5% line, the output
+  says the result is borderline.
+- **Success definition:** the gripper tip is within 2 cm of the target **on the final frame**, so the arm has to hold
+  there. LeRobot's own eval counts success if it happens at any step. We report that too (the "any-step rate"), and
+  the two numbers differ.
+
+</details>
+
+> [!IMPORTANT]
+> **Checkpoint vs recipe.** `compare` tests two *fixed* checkpoints, and its CI covers rollout noise only. Retraining
+> the same data and settings with another seed moved success by **10–15 points** on this task. A claim like "filtered
+> data trains better policies" needs at least 3 training seeds per side (`--seed`) with a consistent direction.
+
+**LeRobot checkpoints** (`lerobot:<dir>/pretrained_model`, needs the `lerobot` extra) run through a small adapter. So
+far this is **only a smoke test**: we ran it on a tiny state-only ACT trained locally and make no claim about ACT's
+success rate. Policies that need inputs the simulator doesn't provide (cameras, other robots) are refused with a
+message naming the missing input. See [SECURITY.md](https://github.com/Sebilopez1/robot-report-card/blob/main/SECURITY.md)
+before loading checkpoints you didn't train.
+
+## 🧾 The report card
+
+`rrc report` joins the JSON from `rrc score`, `rrc eval` and `rrc compare` into one page with five blocks:
+**Data**, **Policy**, **Regression**, **Verdict** and **Can't tell**. The card is always printed; `--md` and `--html`
+also write it as Markdown or a self-contained HTML page, and `rrc_report.json` holds everything the renderings show.
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Sebilopez1/robot-report-card/main/docs/assets/card-dark.png">
+    <img alt="The HTML report card for the demo: Data (25 of 90 flagged, 23 failed), Policy (A 0/200, B 29/200 with CIs), Regression (B minus A +14.5 points, p = 3.7e-9, with the checkpoint-vs-recipe caveat) and Verdict R2: consistent with a data problem." src="https://raw.githubusercontent.com/Sebilopez1/robot-report-card/main/docs/assets/card-light.png" width="80%">
+  </picture>
+</p>
+
+- The verdict comes from fixed, ordered rules that cite their evidence. It says what the evidence is **consistent
+  with**, and it never names a cause.
+- A `bc:` checkpoint counts as trained on the scored dataset only when its dataset fingerprint matches **and** it was
+  trained on every episode (`--keep all`). A filtered checkpoint is reported as a subset of the scored dataset, and
+  it never gets a clean verdict.
+- `--train-seeds N` tells the card how many training seeds stand behind each side of a comparison. Below 3, it won't
+  draw a conclusion about the training recipe.
+- The thresholds (for example, 10% failed demos) are proposals tuned in simulation, and the card says so.
+
+## 🎬 Record, tag and export simulated episodes
 
 A simulated SO-101 reach task in MuJoCo: 90 frames (3 s) at 30 fps, with the same joint names as real SO-101 data.
 
@@ -90,80 +222,11 @@ rrc export runs/demo --out datasets/demo --repo-id local/demo
 - Tags live in the session (`runs/demo/episodes.jsonl`) and are copied to `datasets/demo/meta/rrc_tags.json` on export.
   Nothing is uploaded.
 
-## Evaluate a policy
-
-`rrc eval` rolls a policy out in the simulated reach task and reports its success rate. `rrc compare` runs two
-policies on the **same** seeds and tests whether B differs from A. `rrc train-bc` trains a small behavior-cloning MLP on
-an exported dataset (on the CPU, in seconds), so there's a real A vs B to compare. The full demo (about 35–50 s):
-
-```bash
-pip install "robot-report-card[score,sim,eval,lerobot]"
-rrc record --mix clean:60,noise025:10,random:10,hesitation:5,wrong:5 --seed 30000 --out runs/mix
-rrc export runs/mix --out datasets/mix --repo-id local/mix
-rrc score datasets/mix --json-out mix.score.json
-rrc train-bc datasets/mix --out ckpt/all                                                        # A: every episode
-rrc train-bc datasets/mix --out ckpt/filtered --keep ok-and-success --score-json mix.score.json  # B: quality ok AND succeeded
-rrc eval bc:ckpt/filtered
-rrc compare bc:ckpt/all bc:ckpt/filtered --json-out compare.json
-rrc report --score mix.score.json --compare compare.json --md card.md --html card.html
-```
-
-On our Linux machine, A succeeds 0/200 and B 29/200 (McNemar p = 3.7e-9). Policies are `scripted`, `random`,
-`bc:<checkpoint dir>` or `lerobot:<pretrained_model dir>`. Defaults are 200 episodes and `--eval-seed 900000`, and
-episode i always starts from the same target.
-
-**Success definition:** the gripper tip is within 2 cm of the target **on the final frame**, so the arm has to hold
-there. LeRobot's own eval counts success if it happens at any step. We report that too (the "any-step rate"), and the
-two numbers differ.
-
-**How to read `rrc compare`:**
-- **Rate with a Wilson 95% CI** for each policy: the range the true success rate plausibly lies in. At n = 200 it's
-  about ±7 points near 50%.
-- **Paired counts** (both / A only / B only / neither): only the episodes where the two policies disagree carry information.
-- **Exact McNemar p** tests whether "B only" and "A only" are unbalanced. The verdict names the direction when p < 0.05.
-- **Δ with a 95% CI** (Newcombe) is the size of the difference, in points of success rate.
-- **MDE:** "this test detects differences of about X points or more with 80% power", based on how much the two
-  policies disagreed. *"No detectable difference"* means the difference is smaller than this test can see at this n.
-  It does **not** mean the policies are equal. If the exact test and the CI disagree right at the 5% line, the output
-  says the result is borderline.
-
-**Checkpoint vs recipe:** `compare` tests two *fixed* checkpoints, and its CI covers rollout noise only. Retraining the
-same data and settings with another seed moved success by **10–15 points** on this task. A claim like "filtered data
-trains better policies" needs at least 3 training seeds per side (`--seed`) with a consistent direction.
-
-**LeRobot checkpoints** (`lerobot:<dir>/pretrained_model`, needs the `lerobot` extra) run through a small adapter. So far
-this is **only a smoke test**: we ran it on a tiny state-only ACT trained locally and make no claim about ACT's success
-rate. Policies that need inputs the simulator doesn't provide (cameras, other robots) are refused with a message naming
-the missing input. See [SECURITY.md](https://github.com/Sebilopez1/robot-report-card/blob/main/SECURITY.md) before
-loading checkpoints you didn't train.
-
-## The report card
-
-`rrc report` joins the JSON from `rrc score`, `rrc eval` and `rrc compare` into one page with five blocks:
-**Data**, **Policy**, **Regression**, **Verdict** and **Can't tell**. The card is always printed. `--md` and `--html`
-also write it as Markdown or a self-contained HTML page, and `rrc_report.json` holds everything the renderings show.
-
-- The verdict comes from fixed, ordered rules that cite their evidence. It says what the evidence is **consistent
-  with**, and it never names a cause. For the demo above:
-  ```text
-  [R2] 25.6% of demos in mix failed (outcome source: sim 90 of 90 episodes). Consistent with a data problem.
-  A (bc:ckpt/all) learned from all 90 episodes. B (bc:ckpt/filtered) learned from a filtered subset
-  (keep = ok-and-success, 59 of 90 episodes), of which 0% failed. In our sim study, training on failed
-  wrong-goal demos cost ~24 points.
-  ```
-- A `bc:` checkpoint counts as trained on the scored dataset only when its dataset fingerprint matches **and** it was
-  trained on every episode (`--keep all`). A filtered checkpoint is reported as a subset of the scored dataset, and
-  it never gets a clean verdict.
-- `--train-seeds N` tells the card how many training seeds stand behind each side of a comparison. Below 3, it won't
-  draw a conclusion about the training recipe.
-- The thresholds (for example, 10% failed demos) are proposals tuned in simulation, and the card says so.
-
-## What it can't tell you
+## ⚠️ What it can't tell you
 
 - **Failed attempts that move normally** (stopping early, reaching for the wrong goal) look fine to the motion score.
   Only outcome evidence (a success column or labels) shows them.
-- **Uniform problems:** scores are relative to one dataset and assume most episodes are good. If every episode shares
-  the same problem (for example a jittery leader arm), few or none will be flagged. Scores aren't comparable across datasets.
+- **Uniform problems:** scores are relative to one dataset and assume most episodes are good. If every episode shares the same problem (for example a jittery leader arm), few or none will be flagged. Scores aren't comparable across datasets.
 - **Slow wobble** (band-limited jitter) isn't flagged.
 - **Simulation, not your robot:** `rrc eval` runs in a simulated SO-101 reach task. It says nothing directly about your
   real robot or other tasks.
@@ -171,43 +234,38 @@ also write it as Markdown or a self-contained HTML page, and `rrc_report.json` h
   not a replay.
 - **Thresholds are sim-tuned.** They haven't been calibrated on real teleoperation data yet.
 
-## What we've measured so far
+## 📏 What we've measured so far
 
-- **Scoring (simulation benchmark, three seed sets including a private one):** junk motion (random actions,
-  high-noise actions, hesitation) ranks almost perfectly (AUROC ≥ 0.99). At the default threshold, flag precision is
-  1.00 and recall 0.975–1.00. At most 2% of good episodes are flagged at standard noise (2–5% at low noise).
-- **Scoring (one public real SO-101 dataset, 10 episodes):** 1 true positive and 1 false positive (a return-to-home
-  motion). The false-positive pattern is fixed and verified in simulation; the re-check on the real dataset is pending.
-- **Evaluation (simulation, one task):** two checkpoints trained on the same mixed dataset, unfiltered vs filtered to
-  quality-ok *and* successful episodes, scored 0/200 vs 29/200 (p = 3.7e-9). Over 5 training seeds, unfiltered scored
-  0–2/200 and filtered 15–39/200 (every p ≤ 6.1e-5).
-- **What hurt the policy (simulation, MLP, 3 training seeds):** random actions, high-noise actions and wrong-goal demos
-  did. Hesitation didn't. The scorer removes the first two; only outcome evidence removes wrong-goal demos.
-- **Statistics:** the CIs and tests are checked against scipy and exact enumeration (Wilson coverage 0.95 on average,
-  never below 0.91 for n = 20–200 and success rates between 5% and 95%).
+| Claim | Evidence |
+|---|---|
+| Junk motion ranks almost perfectly | Sim benchmark, three seed sets incl. a private one: AUROC ≥ 0.99; flag precision 1.00, recall 0.975–1.00; ≤ 2% of good episodes flagged at standard noise (2–5% at low noise) |
+| It works on real data (early) | One public real SO-101 dataset, 10 episodes: 0.1.0 flags 1 episode, a true positive. An earlier false positive (a return-to-home motion) is fixed |
+| Filtering helps, in sim | Unfiltered vs filtered to quality-ok *and* successful: 0/200 vs 29/200 (p = 3.7e-9); over 5 training seeds, 0–2/200 vs 15–39/200 (every p ≤ 6.1e-5) |
+| What hurt the policy | Random actions, high-noise actions and wrong-goal demos did; hesitation didn't (MLP, 3 seeds). The scorer removes the first two; only outcome evidence removes wrong-goal demos |
+| The statistics are right | CIs and tests checked against scipy and exact enumeration (Wilson coverage 0.95 on average, never below 0.91 for n = 20–200, rates 5–95%) |
 
 Details: [STATUS.md](https://github.com/Sebilopez1/robot-report-card/blob/main/STATUS.md) and the
 [milestone reports](https://github.com/Sebilopez1/robot-report-card/tree/main/docs/milestones).
 
-## Contributing, security, changelog
+## 🗺️ Roadmap
 
-- [CONTRIBUTING.md](https://github.com/Sebilopez1/robot-report-card/blob/main/CONTRIBUTING.md): dev install, test
-  profiles, how to report a dataset where the score is wrong. CI has not yet run on GitHub.
-- [SECURITY.md](https://github.com/Sebilopez1/robot-report-card/blob/main/SECURITY.md): loading checkpoints safely.
-- [CHANGELOG.md](https://github.com/Sebilopez1/robot-report-card/blob/main/CHANGELOG.md).
-- Found a dataset where `rrc score` is wrong? Please
-  [open an issue](https://github.com/Sebilopez1/robot-report-card/issues) with the `rrc score` JSON. The JSON
-  contains no video.
+- [x] Data logger: record, tag, export
+- [x] Dataset scoring: `rrc score`
+- [x] Policy evaluation: `rrc eval`, `rrc compare`, `rrc train-bc`, `rrc report`
+- [x] Free open-source release (0.1.0, alpha)
+- [ ] Calibrate thresholds on more real teleoperation datasets
+- [ ] Hosted team dashboard (paid; free for .edu)
 
-## Roadmap
+## 🤝 Contributing
 
-1. Data logger: record, tag, export *(done)*
-2. Dataset scoring: `rrc score` *(done)*
-3. Policy evaluation: `rrc eval`, `rrc compare`, `rrc train-bc`, `rrc report` *(done)*
-4. Free open-source release *(this release)*
-5. Hosted team dashboard (paid; free for .edu)
+- **Found a dataset where `rrc score` is wrong?** That's the most useful thing you can send.
+  [Open an issue](https://github.com/Sebilopez1/robot-report-card/issues) with the `rrc score` JSON (it contains no
+  video).
+- [CONTRIBUTING.md](https://github.com/Sebilopez1/robot-report-card/blob/main/CONTRIBUTING.md): dev install and test
+  profiles. [SECURITY.md](https://github.com/Sebilopez1/robot-report-card/blob/main/SECURITY.md): loading checkpoints
+  safely. [CHANGELOG.md](https://github.com/Sebilopez1/robot-report-card/blob/main/CHANGELOG.md).
 
-## License
+## 📄 License
 
 Apache License 2.0. See [LICENSE](https://github.com/Sebilopez1/robot-report-card/blob/main/LICENSE) and
 [NOTICE](https://github.com/Sebilopez1/robot-report-card/blob/main/NOTICE). The bundled SO-101 robot model comes
