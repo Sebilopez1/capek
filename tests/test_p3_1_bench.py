@@ -1,5 +1,5 @@
 """P3-1 (QA, bench side): return_home in every mixed set, whole-set low-noise variants, the return_home bar and the
-power check that the phase 2 `net` tv formula fails it (plan D3). The full power check is gated: RRC_BENCH_FULL=1."""
+power check that the phase 2 `net` tv formula fails it (plan D3). The full power check is gated: CAPEK_BENCH_FULL=1."""
 
 from __future__ import annotations
 
@@ -10,8 +10,8 @@ from pathlib import Path
 import pytest
 from test_p2_3_bench import _groups, _toy, small_bench  # noqa: F401  (session fixture shared with the P2-3 tests)
 
-from robot_report_card.bench.evaluate import evaluate
-from robot_report_card.bench.spec import NOISE_PROFILES, SEED_SETS
+from capek.bench.evaluate import evaluate
+from capek.bench.spec import NOISE_PROFILES, SEED_SETS
 
 
 def test_low_noise_sets_and_return_home_group(small_bench: Path) -> None:  # noqa: F811
@@ -39,8 +39,8 @@ def test_low_noise_sets_and_return_home_group(small_bench: Path) -> None:  # noq
         assert all(0.8 <= r["params"]["out_s"] <= 1.2 and 0.1 <= r["params"]["hold_s"] <= 0.4 for r in rth)
         assert all(r["sim_success"] is False for r in rth)  # it goes back home, so the final frame is not at the target
     # standard and low sets share targets (same seeds), so they differ only in noise
-    a = json.loads((small_bench / "mixed" / "dataset" / "meta" / "rrc_tags.json").read_text())["episodes"]
-    b = json.loads((small_bench / "mixed_low" / "dataset" / "meta" / "rrc_tags.json").read_text())["episodes"]
+    a = json.loads((small_bench / "mixed" / "dataset" / "meta" / "capek_tags.json").read_text())["episodes"]
+    b = json.loads((small_bench / "mixed_low" / "dataset" / "meta" / "capek_tags.json").read_text())["episodes"]
     assert [a[k]["seed"] for k in sorted(a, key=int)] == [b[k]["seed"] for k in sorted(b, key=int)]
 
 
@@ -63,15 +63,17 @@ def test_return_home_bar_and_binding_by_profile() -> None:
     assert r["all_pass"] and {b["bar"] for b in r["bars"] if b["binding"]} == {"return_home_flagged"}
 
 
-@pytest.mark.skipif(os.environ.get("RRC_BENCH_FULL") != "1", reason="full power check: set RRC_BENCH_FULL=1 (~20 s)")
+@pytest.mark.skipif(
+    os.environ.get("CAPEK_BENCH_FULL") != "1", reason="full power check: set CAPEK_BENCH_FULL=1 (~20 s)"
+)
 def test_power_check_old_formula_fails_return_home_bar(tmp_path: Path) -> None:
     """The bar has power: on the published R-real-1 regression seeds the phase 2 formula flags >= 2/10 return_home,
-    while the current scorer (via `rrc score` JSON, judged by the evaluator) flags <= 1/10."""
+    while the current scorer (via `capek score` JSON, judged by the evaluator) flags <= 1/10."""
     pytest.importorskip("mujoco")
     pytest.importorskip("lerobot")
-    from robot_report_card.bench.__main__ import _score, net_formula_power_check
-    from robot_report_card.bench.build import build_set
-    from robot_report_card.bench.spec import MIXED
+    from capek.bench.__main__ import _score, net_formula_power_check
+    from capek.bench.build import build_set
+    from capek.bench.spec import MIXED
 
     d = tmp_path / "mixed_low"
     build_set(d, "rreal1", MIXED, SEED_SETS["rreal1"]["mixed"], small=False, private=False, profile="low")
@@ -84,7 +86,7 @@ def test_power_check_old_formula_fails_return_home_bar(tmp_path: Path) -> None:
 
 
 def test_record_mix_group_parsing() -> None:
-    from robot_report_card.bench.build import BenchError, parse_groups
+    from capek.bench.build import BenchError, parse_groups
 
     assert parse_groups("clean:60,noise025:10, random:10") == [("clean", 60), ("noise025", 10), ("random", 10)]
     for bad in ("clean", "clean:0", "nope:3", "clean:x"):

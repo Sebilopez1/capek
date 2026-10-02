@@ -11,7 +11,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from robot_report_card.eval import stats
+from capek.eval import stats
 
 REPO = Path(__file__).resolve().parents[1]
 
@@ -105,6 +105,6 @@ def test_bad_input_raises() -> None:
 
 
 def test_no_scipy_at_runtime() -> None:
-    code = "import sys, robot_report_card.eval.stats as s; s.mde_paired(50, .5); print('scipy' in sys.modules)"
+    code = "import sys, capek.eval.stats as s; s.mde_paired(50, .5); print('scipy' in sys.modules)"
     r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)
     assert r.returncode == 0 and r.stdout.strip() == "False"

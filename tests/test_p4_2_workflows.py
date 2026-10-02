@@ -12,6 +12,9 @@ WF = Path(__file__).resolve().parents[1] / ".github" / "workflows"
 pytestmark = pytest.mark.skipif(not WF.is_dir(), reason=".github/ is not in the sdist")
 
 
+PUBLISH_JOBS = ("pypi", "testpypi", "pypi-redirect", "testpypi-redirect")
+
+
 def _load(name: str) -> dict:
     doc = yaml.safe_load((WF / name).read_text())
     doc["on"] = doc.pop(True, doc.get("on"))  # PyYAML reads the key `on` as boolean True
@@ -32,7 +35,7 @@ def test_release_uses_trusted_publishing_bound_to_the_pypi_environment() -> None
     publish_steps = [s for s in test["steps"] if s.get("uses", "").startswith("pypa/gh-action-pypi-publish@")]
     assert publish_steps[0]["with"]["repository-url"] == "https://test.pypi.org/legacy/"
     for name, job in jobs.items():  # id-token only where something is published
-        assert ("id-token" in job.get("permissions", {})) == (name in ("pypi", "testpypi")), name
+        assert ("id-token" in job.get("permissions", {})) == (name in PUBLISH_JOBS), name
 
 
 def test_tests_workflow_matrix_and_cpu_torch() -> None:
@@ -45,14 +48,13 @@ def test_tests_workflow_matrix_and_cpu_torch() -> None:
     runs = "\n".join(s.get("run", "") for s in heavy["steps"])
     assert '"torch==2.10.*" "torchvision==0.25.*" --index-url https://download.pytorch.org/whl/cpu' in runs
     assert runs.index("download.pytorch.org") < runs.index(".[dev,score,sim,eval,lerobot]")
-    assert "schedule" in wf["on"] and any(s.get("env", {}).get("RRC_BENCH_FULL") == "1" for s in heavy["steps"])
+    assert "schedule" in wf["on"] and any(s.get("env", {}).get("CAPEK_BENCH_FULL") == "1" for s in heavy["steps"])
 
 
 @pytest.mark.parametrize("name", ["tests.yml", "release.yml"])
 def test_no_secrets_and_actions_pinned_to_major_versions(name: str) -> None:
     text = (WF / name).read_text()
     assert "secrets." not in text and "password" not in text.lower() and not re.search(r"(?<!id-)token:", text)
-    assert "has not yet run on GitHub" in text
     for ref in re.findall(r"uses:\s*(\S+)", text):
         assert re.search(r"@(v\d+|release/v\d+)$", ref), ref
 
@@ -67,3 +69,14 @@ def test_release_build_fails_while_the_placeholder_is_present() -> None:
     assert gate < build
     for job in ("pypi", "testpypi"):
         assert wf["jobs"][job]["needs"] == "build"
+
+
+def test_redirect_jobs_run_after_capek_tech_and_skip_existing() -> None:
+    jobs = _load("release.yml")["jobs"]
+    for name, after, env in (("pypi-redirect", "pypi", "pypi"), ("testpypi-redirect", "testpypi", "testpypi")):
+        job = jobs[name]
+        assert job["needs"] == after and job["environment"]["name"] == env and job["if"] == jobs[after]["if"]
+        publish = [s for s in job["steps"] if s.get("uses", "").startswith("pypa/gh-action-pypi-publish@")]
+        assert publish and all(
+            s["with"]["packages-dir"] == "dist-redirect/" and s["with"]["skip-existing"] for s in publish
+        )

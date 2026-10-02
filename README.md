@@ -1,15 +1,15 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Sebilopez1/robot-report-card/main/docs/assets/banner-dark.svg">
-    <img alt="Robot Report Card: is it your data or your model? Dataset scoring and honest policy evaluation for LeRobot and low-cost arms like the SO-101." src="https://raw.githubusercontent.com/Sebilopez1/robot-report-card/main/docs/assets/banner-light.svg" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Sebilopez1/capek/main/docs/assets/banner-dark.svg">
+    <img alt="Capek: is it your data or your model? Dataset scoring and honest policy evaluation for LeRobot and low-cost arms like the SO-101." src="https://raw.githubusercontent.com/Sebilopez1/capek/main/docs/assets/banner-light.svg" width="100%">
   </picture>
 </p>
 
 <p align="center">
-  <a href="https://pypi.org/project/robot-report-card/"><img alt="PyPI" src="https://img.shields.io/pypi/v/robot-report-card?color=0969da"></a>
-  <a href="https://pypi.org/project/robot-report-card/"><img alt="Python 3.10 to 3.12" src="https://img.shields.io/pypi/pyversions/robot-report-card"></a>
-  <a href="https://github.com/Sebilopez1/robot-report-card/actions/workflows/tests.yml"><img alt="Tests" src="https://github.com/Sebilopez1/robot-report-card/actions/workflows/tests.yml/badge.svg"></a>
-  <a href="https://github.com/Sebilopez1/robot-report-card/blob/main/LICENSE"><img alt="License: Apache 2.0" src="https://img.shields.io/badge/license-Apache%202.0-blue"></a>
+  <a href="https://pypi.org/project/capek-tech/"><img alt="PyPI" src="https://img.shields.io/pypi/v/capek-tech?color=0969da"></a>
+  <a href="https://pypi.org/project/capek-tech/"><img alt="Python 3.10 to 3.12" src="https://img.shields.io/pypi/pyversions/capek-tech"></a>
+  <a href="https://github.com/Sebilopez1/capek/actions/workflows/tests.yml"><img alt="Tests" src="https://github.com/Sebilopez1/capek/actions/workflows/tests.yml/badge.svg"></a>
+  <a href="https://github.com/Sebilopez1/capek/blob/main/LICENSE"><img alt="License: Apache 2.0" src="https://img.shields.io/badge/license-Apache%202.0-blue"></a>
 </p>
 
 <p align="center">
@@ -20,32 +20,34 @@
   <a href="#what-it-cant-tell-you">Limits</a> ·
   <a href="#faq">FAQ</a> ·
   <a href="#roadmap">Roadmap</a> ·
-  <a href="https://github.com/Sebilopez1/robot-report-card/discussions">Discussions</a>
+  <a href="https://github.com/Sebilopez1/capek/discussions">Discussions</a>
 </p>
 
 ---
 
 You record demos, train a policy, and it performs badly. Was it the data or the model?
-**Robot Report Card (`rrc`)** turns "eyeball the rollouts and guess" into evidence: which episodes in your
+**Capek** turns "eyeball the rollouts and guess" into evidence: which episodes in your
 [LeRobot](https://github.com/huggingface/lerobot) dataset look like junk and why, a success rate with a confidence
 interval, and whether checkpoint B really beats checkpoint A. It puts all of it on a one-page report card that says
 what the evidence is *consistent with*, and what it can't tell.
 
+<sub>Named after Karel Čapek, the Czech writer whose 1920 play *R.U.R.* gave the world the word "robot" (his brother Josef suggested it). Formerly Robot Report Card (`rrc`); files written by 0.1.0 still load.</sub>
+
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Sebilopez1/robot-report-card/main/docs/assets/result-dark.svg">
-    <img alt="Bar chart: policy A trained on all 90 demos succeeds 0 of 200 times; policy B trained on the 59 demos rrc kept succeeds 29 of 200 (14.5%). Difference +14.5 points, 95% CI +9.9 to +20.0, McNemar p = 3.7e-9. One task, in simulation." src="https://raw.githubusercontent.com/Sebilopez1/robot-report-card/main/docs/assets/result-light.svg" width="92%">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Sebilopez1/capek/main/docs/assets/result-dark.svg">
+    <img alt="Bar chart: policy A trained on all 90 demos succeeds 0 of 200 times; policy B trained on the 59 demos capek kept succeeds 29 of 200 (14.5%). Difference +14.5 points, 95% CI +9.9 to +20.0, McNemar p = 3.7e-9. One task, in simulation." src="https://raw.githubusercontent.com/Sebilopez1/capek/main/docs/assets/result-light.svg" width="92%">
   </picture>
 </p>
 
 ## Highlights
 
-- **Find junk episodes**: `rrc score` ranks every episode on jitter, jerk, hesitation, dithering, saturated actions
+- **Find junk episodes**: `capek score` ranks every episode on jitter, jerk, hesitation, dithering, saturated actions
   and commands the arm doesn't follow, and says *why* each one was flagged. It reads the parquet files directly and
   **never writes into your dataset**.
-- **Honest A vs B**: `rrc compare` runs two policies on the same seeds and reports Wilson intervals, an exact McNemar
+- **Honest A vs B**: `capek compare` runs two policies on the same seeds and reports Wilson intervals, an exact McNemar
   test, the size of the difference, and the smallest difference the test could have detected.
-- **One-page report card**: `rrc report` joins everything into Data / Policy / Regression / Verdict / Can't tell,
+- **One-page report card**: `capek report` joins everything into Data / Policy / Regression / Verdict / Can't tell,
   in the terminal, Markdown or HTML.
 - **Built for low-cost arms**: SO-100 / SO-101 joint names, LeRobot v3.0, v2.1 and v2.0 datasets, and a bundled
   MuJoCo SO-101 reach task.
@@ -54,8 +56,8 @@ what the evidence is *consistent with*, and what it can't tell.
 ## Quickstart
 
 ```bash
-pip install "robot-report-card[score]"
-rrc score path/to/lerobot_dataset --only-flagged
+pip install "capek-tech[score]"
+capek score path/to/lerobot_dataset --only-flagged
 ```
 
 Want the whole loop in simulation (record → score → train two policies → compare → report card)? That takes about
@@ -65,18 +67,18 @@ a minute on a laptop; see [the full demo](#evaluate-and-compare-policies).
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Sebilopez1/robot-report-card/main/docs/assets/pipeline-dark.svg">
-    <img alt="Pipeline: rrc record (simulated demos) → rrc export (LeRobot format) → rrc score (find junk episodes, the main feature) → rrc train-bc (teach a policy) → rrc eval and compare (test it, A vs B) → rrc report (one-page card). Real-robot users start at rrc score." src="https://raw.githubusercontent.com/Sebilopez1/robot-report-card/main/docs/assets/pipeline-light.svg" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Sebilopez1/capek/main/docs/assets/pipeline-dark.svg">
+    <img alt="Pipeline: capek record (simulated demos) → capek export (LeRobot format) → capek score (find junk episodes, the main feature) → capek train-bc (teach a policy) → capek eval and compare (test it, A vs B) → capek report (one-page card). Real-robot users start at capek score." src="https://raw.githubusercontent.com/Sebilopez1/capek/main/docs/assets/pipeline-light.svg" width="100%">
   </picture>
 </p>
 
 | Command | What it does | Needs |
 |---|---|---|
-| `rrc score` | Score every episode of a LeRobot dataset, flag the junk | `[score]` |
-| `rrc record` / `tag` / `list` / `export` | Record simulated SO-101 demos, label them, export to LeRobot format | `[sim,lerobot]` |
-| `rrc train-bc` | Train a small behavior-cloning policy on the CPU, in seconds | `[score,eval]` |
-| `rrc eval` / `compare` | Success rate with CIs; paired A vs B test | `[sim,eval]` |
-| `rrc report` | The one-page report card | base |
+| `capek score` | Score every episode of a LeRobot dataset, flag the junk | `[score]` |
+| `capek record` / `tag` / `list` / `export` | Record simulated SO-101 demos, label them, export to LeRobot format | `[sim,lerobot]` |
+| `capek train-bc` | Train a small behavior-cloning policy on the CPU, in seconds | `[score,eval]` |
+| `capek eval` / `compare` | Success rate with CIs; paired A vs B test | `[sim,eval]` |
+| `capek report` | The one-page report card | base |
 
 ## Install
 
@@ -84,11 +86,11 @@ Python 3.10–3.12. Pick the extras for what you want to do:
 
 | You want to… | Install |
 |---|---|
-| Score an existing LeRobot dataset | `pip install "robot-report-card[score]"` (about 75 MB base + pyarrow) |
-| Record simulated SO-101 episodes | `pip install "robot-report-card[sim]"` |
-| Export recordings to LeRobot format | `pip install "robot-report-card[sim,lerobot]"` |
-| Evaluate / compare / train small policies | `pip install "robot-report-card[sim,eval]"` (+ `score` for `train-bc`) |
-| Everything in this README | `pip install "robot-report-card[score,sim,eval,lerobot]"` |
+| Score an existing LeRobot dataset | `pip install "capek-tech[score]"` (about 75 MB base + pyarrow) |
+| Record simulated SO-101 episodes | `pip install "capek-tech[sim]"` |
+| Export recordings to LeRobot format | `pip install "capek-tech[sim,lerobot]"` |
+| Evaluate / compare / train small policies | `pip install "capek-tech[sim,eval]"` (+ `score` for `train-bc`) |
+| Everything in this README | `pip install "capek-tech[score,sim,eval,lerobot]"` |
 
 <details>
 <summary><b>Install notes</b> (torch size on Linux, numpy pin, tested Pythons)</summary>
@@ -105,18 +107,18 @@ Python 3.10–3.12. Pick the extras for what you want to do:
 
 ## Score a dataset you already have
 
-`rrc score` reads a LeRobot dataset on disk (v3.0, v2.1 or v2.0) with pyarrow alone. It needs no lerobot, no torch
+`capek score` reads a LeRobot dataset on disk (v3.0, v2.1 or v2.0) with pyarrow alone. It needs no lerobot, no torch
 and no simulator, and **it never writes into the dataset**.
 
 ```bash
-pip install "robot-report-card[score]"
-hf download <user>/<dataset> --repo-type dataset --include "meta/*" "data/*" --local-dir ~/rrc-data/mine   # parquet only, no videos
-rrc score ~/rrc-data/mine                        # table + summary; JSON report written to ./mine.rrc_score.json
-rrc score ~/rrc-data/mine --only-flagged --json-out reports/mine.json --overwrite
+pip install "capek-tech[score]"
+hf download <user>/<dataset> --repo-type dataset --include "meta/*" "data/*" --local-dir ~/capek-data/mine   # parquet only, no videos
+capek score ~/capek-data/mine                        # table + summary; JSON report written to ./mine.capek_score.json
+capek score ~/capek-data/mine --only-flagged --json-out reports/mine.json --overwrite
 ```
 
 <p align="center">
-  <img alt="Terminal output of rrc score --only-flagged on a 90-episode simulated dataset: 25 of 90 episodes flagged, each with its score, outcome and the reasons, such as action chatter and commands not followed." src="https://raw.githubusercontent.com/Sebilopez1/robot-report-card/main/docs/assets/score.svg" width="92%">
+  <img alt="Terminal output of capek score --only-flagged on a 90-episode simulated dataset: 25 of 90 episodes flagged, each with its score, outcome and the reasons, such as action chatter and commands not followed." src="https://raw.githubusercontent.com/Sebilopez1/capek/main/docs/assets/score.svg" width="92%">
 </p>
 
 Each row shows `ep | frames | quality (ok/FLAG/HARD) | score | outcome (+source) | why`.
@@ -125,37 +127,37 @@ Each row shows `ep | frames | quality (ok/FLAG/HARD) | score | outcome (+source)
   doesn't follow. A robust z-score is computed per signal against *this* dataset, and an episode is flagged when its
   largest z is above 3.5 (`--threshold`). **HARD** means a recording with a hard defect: NaN/inf values, a joint whose
   reading never changes while its command moves, dropped frames, ≥ 20% saturated actions, or an episode that's too short.
-- **Outcome** comes only from evidence: a human label in `meta/rrc_tags.json`, otherwise the last-frame `next.success`,
+- **Outcome** comes only from evidence: a human label in `meta/capek_tags.json`, otherwise the last-frame `next.success`,
   otherwise `unknown`.
 - Column names differ between datasets? Use `--state-key` / `--action-key`. The JSON report is never silently
-  replaced: to re-run `rrc score` on the same dataset, pass `--overwrite` (or pick another `--json-out`).
+  replaced: to re-run `capek score` on the same dataset, pass `--overwrite` (or pick another `--json-out`).
 
 ## Evaluate and compare policies
 
-`rrc eval` rolls a policy out in the simulated SO-101 reach task and reports its success rate. `rrc compare` runs two
-policies on the **same** seeds and tests whether B differs from A. `rrc train-bc` trains a small behavior-cloning MLP on
+`capek eval` rolls a policy out in the simulated SO-101 reach task and reports its success rate. `capek compare` runs two
+policies on the **same** seeds and tests whether B differs from A. `capek train-bc` trains a small behavior-cloning MLP on
 an exported dataset, so there's a real A vs B to compare. The full demo (about 35–50 s):
 
 ```bash
-pip install "robot-report-card[score,sim,eval,lerobot]"
-rrc record --mix clean:60,noise025:10,random:10,hesitation:5,wrong:5 --seed 30000 --out runs/mix
-rrc export runs/mix --out datasets/mix --repo-id local/mix
-rrc score datasets/mix --json-out mix.score.json
-rrc train-bc datasets/mix --out ckpt/all                                                        # A: every episode
-rrc train-bc datasets/mix --out ckpt/filtered --keep ok-and-success --score-json mix.score.json  # B: quality ok AND succeeded
-rrc compare bc:ckpt/all bc:ckpt/filtered --json-out compare.json
-rrc report --score mix.score.json --compare compare.json --md card.md --html card.html
+pip install "capek-tech[score,sim,eval,lerobot]"
+capek record --mix clean:60,noise025:10,random:10,hesitation:5,wrong:5 --seed 30000 --out runs/mix
+capek export runs/mix --out datasets/mix --repo-id local/mix
+capek score datasets/mix --json-out mix.score.json
+capek train-bc datasets/mix --out ckpt/all                                                        # A: every episode
+capek train-bc datasets/mix --out ckpt/filtered --keep ok-and-success --score-json mix.score.json  # B: quality ok AND succeeded
+capek compare bc:ckpt/all bc:ckpt/filtered --json-out compare.json
+capek report --score mix.score.json --compare compare.json --md card.md --html card.html
 ```
 
 <p align="center">
-  <img alt="Terminal output of rrc compare: A 0 of 200, B 29 of 200, paired counts, delta +14.5 points with 95% CI +9.9 to +20.0, exact McNemar p = 3.7e-9, minimum detectable difference about 9 points." src="https://raw.githubusercontent.com/Sebilopez1/robot-report-card/main/docs/assets/compare.svg" width="92%">
+  <img alt="Terminal output of capek compare: A 0 of 200, B 29 of 200, paired counts, delta +14.5 points with 95% CI +9.9 to +20.0, exact McNemar p = 3.7e-9, minimum detectable difference about 9 points." src="https://raw.githubusercontent.com/Sebilopez1/capek/main/docs/assets/compare.svg" width="92%">
 </p>
 
 Policies are `scripted`, `random`, `bc:<checkpoint dir>` or `lerobot:<pretrained_model dir>`. Defaults are 200
 episodes and `--eval-seed 900000`, and episode i always starts from the same target.
 
 <details>
-<summary><b>How to read <code>rrc compare</code></b></summary>
+<summary><b>How to read <code>capek compare</code></b></summary>
 
 - **Rate with a Wilson 95% CI** for each policy: the range the true success rate plausibly lies in. At n = 200 it's
   about ±7 points near 50%.
@@ -180,19 +182,19 @@ episodes and `--eval-seed 900000`, and episode i always starts from the same tar
 **LeRobot checkpoints** (`lerobot:<dir>/pretrained_model`, needs the `lerobot` extra) run through a small adapter. So
 far this is **only a smoke test**: we ran it on a tiny state-only ACT trained locally and make no claim about ACT's
 success rate. Policies that need inputs the simulator doesn't provide (cameras, other robots) are refused with a
-message naming the missing input. See [SECURITY.md](https://github.com/Sebilopez1/robot-report-card/blob/main/SECURITY.md)
+message naming the missing input. See [SECURITY.md](https://github.com/Sebilopez1/capek/blob/main/SECURITY.md)
 before loading checkpoints you didn't train.
 
 ## The report card
 
-`rrc report` joins the JSON from `rrc score`, `rrc eval` and `rrc compare` into one page with five blocks:
+`capek report` joins the JSON from `capek score`, `capek eval` and `capek compare` into one page with five blocks:
 **Data**, **Policy**, **Regression**, **Verdict** and **Can't tell**. The card is always printed; `--md` and `--html`
-also write it as Markdown or a self-contained HTML page, and `rrc_report.json` holds everything the renderings show.
+also write it as Markdown or a self-contained HTML page, and `capek_report.json` holds everything the renderings show.
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Sebilopez1/robot-report-card/main/docs/assets/card-dark.png">
-    <img alt="The HTML report card for the demo: Data (25 of 90 flagged, 23 failed), Policy (A 0/200, B 29/200 with CIs), Regression (B minus A +14.5 points, p = 3.7e-9, with the checkpoint-vs-recipe caveat) and Verdict R2: consistent with a data problem." src="https://raw.githubusercontent.com/Sebilopez1/robot-report-card/main/docs/assets/card-light.png" width="80%">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Sebilopez1/capek/main/docs/assets/card-dark.png">
+    <img alt="The HTML report card for the demo: Data (25 of 90 flagged, 23 failed), Policy (A 0/200, B 29/200 with CIs), Regression (B minus A +14.5 points, p = 3.7e-9, with the checkpoint-vs-recipe caveat) and Verdict R2: consistent with a data problem." src="https://raw.githubusercontent.com/Sebilopez1/capek/main/docs/assets/card-light.png" width="80%">
   </picture>
 </p>
 
@@ -210,18 +212,18 @@ also write it as Markdown or a self-contained HTML page, and `rrc_report.json` h
 A simulated SO-101 reach task in MuJoCo: 90 frames (3 s) at 30 fps, with the same joint names as real SO-101 data.
 
 ```bash
-pip install "robot-report-card[sim,lerobot]"
-rrc record --policy scripted --episodes 10 --seed 0 --out runs/demo
-rrc tag runs/demo --episode 3 --label fail --note "overshot"
-rrc list runs/demo
-rrc export runs/demo --out datasets/demo --repo-id local/demo
+pip install "capek-tech[sim,lerobot]"
+capek record --policy scripted --episodes 10 --seed 0 --out runs/demo
+capek tag runs/demo --episode 3 --label fail --note "overshot"
+capek list runs/demo
+capek export runs/demo --out datasets/demo --repo-id local/demo
 ```
 
-- `rrc record --mix` records a labelled mix of good and junk episode types into one session, for example
-  `--mix clean:60,noise025:10,random:10,hesitation:5,wrong:5`. `rrc record --list-groups` lists the types.
+- `capek record --mix` records a labelled mix of good and junk episode types into one session, for example
+  `--mix clean:60,noise025:10,random:10,hesitation:5,wrong:5`. `capek record --list-groups` lists the types.
 - `--policy wrong` reaches an independent wrong goal (clean motion, failed outcome). `--wrong-goal mirrored` restores
   the old mirrored-pose behavior.
-- Tags live in the session (`runs/demo/episodes.jsonl`) and are copied to `datasets/demo/meta/rrc_tags.json` on export.
+- Tags live in the session (`runs/demo/episodes.jsonl`) and are copied to `datasets/demo/meta/capek_tags.json` on export.
   Nothing is uploaded.
 
 ## What it can't tell you
@@ -230,7 +232,7 @@ rrc export runs/demo --out datasets/demo --repo-id local/demo
   Only outcome evidence (a success column or labels) shows them.
 - **Uniform problems:** scores are relative to one dataset and assume most episodes are good. If every episode shares the same problem (for example a jittery leader arm), few or none will be flagged. Scores aren't comparable across datasets.
 - **Slow wobble** (band-limited jitter) isn't flagged.
-- **Simulation, not your robot:** `rrc eval` runs in a simulated SO-101 reach task. It says nothing directly about your
+- **Simulation, not your robot:** `capek eval` runs in a simulated SO-101 reach task. It says nothing directly about your
   real robot or other tasks.
 - **Same machine only:** reruns on one machine are bit-for-bit identical. A rerun on another machine is a new sample,
   not a replay.
@@ -246,16 +248,16 @@ rrc export runs/demo --out datasets/demo --repo-id local/demo
 | What hurt the policy | Random actions, high-noise actions and wrong-goal demos did; hesitation didn't (MLP, 3 seeds). The scorer removes the first two; only outcome evidence removes wrong-goal demos |
 | The statistics are right | CIs and tests checked against scipy and exact enumeration (Wilson coverage 0.95 on average, never below 0.91 for n = 20–200, rates 5–95%) |
 
-Details: [STATUS.md](https://github.com/Sebilopez1/robot-report-card/blob/main/STATUS.md) and the
-[milestone reports](https://github.com/Sebilopez1/robot-report-card/tree/main/docs/milestones).
+Details: [the crew log](https://github.com/Sebilopez1/capek/blob/main/docs/dev/STATUS.md) and the
+[milestone reports](https://github.com/Sebilopez1/capek/tree/main/docs/dev/milestones).
 
 ## FAQ
 
 <details>
 <summary><b>Does it work with data from my real robot?</b></summary>
 
-Yes for `rrc score`: it reads any LeRobot dataset on disk (v3.0, v2.1 or v2.0), from a real arm or a simulator. Policy
-evaluation (`rrc eval`, `rrc compare`) runs only in the bundled simulated SO-101 reach task for now.
+Yes for `capek score`: it reads any LeRobot dataset on disk (v3.0, v2.1 or v2.0), from a real arm or a simulator. Policy
+evaluation (`capek eval`, `capek compare`) runs only in the bundled simulated SO-101 reach task for now.
 
 </details>
 
@@ -264,8 +266,8 @@ evaluation (`rrc eval`, `rrc compare`) runs only in the bundled simulated SO-101
 
 Not automatically. FLAG means its motion is unusual *compared with the rest of this dataset*; the `why` column says
 which signal stood out. Watch that episode first. HARD means a recording defect (NaN values, dropped frames, a frozen
-joint and so on) and is usually safe to drop. `rrc score` never edits your dataset; filtering is your call, for example
-with `rrc train-bc --keep ok-and-success`.
+joint and so on) and is usually safe to drop. `capek score` never edits your dataset; filtering is your call, for example
+with `capek train-bc --keep ok-and-success`.
 
 </details>
 
@@ -274,7 +276,7 @@ with `rrc train-bc --keep ok-and-success`.
 
 Not necessarily. Scores are relative, so a problem every episode shares won't stand out, and failed attempts that move
 smoothly (wrong goal, early stop) look normal to the motion score. Add outcome evidence (`next.success` or
-`rrc tag` labels) to catch those. See [What it can't tell you](#what-it-cant-tell-you).
+`capek tag` labels) to catch those. See [What it can't tell you](#what-it-cant-tell-you).
 
 </details>
 
@@ -291,7 +293,7 @@ evaluation isn't supported yet.
 <summary><b>Why 200 episodes?</b></summary>
 
 Fewer episodes give wider intervals: at n = 200 the 95% interval is about ±7 points near a 50% success rate. You can
-change it with `--episodes`, and `rrc compare` tells you the smallest difference it could have detected at that n.
+change it with `--episodes`, and `capek compare` tells you the smallest difference it could have detected at that n.
 
 </details>
 
@@ -307,41 +309,43 @@ input.
 <details>
 <summary><b>Do I need a GPU or an account? Does anything get uploaded?</b></summary>
 
-No, no and no. Everything runs on a laptop CPU, and `rrc` makes no network calls after install.
+No, no and no. Everything runs on a laptop CPU, and `capek` makes no network calls after install.
 
 </details>
 
 ## Roadmap
 
 - [x] Data logger: record, tag, export
-- [x] Dataset scoring: `rrc score`
-- [x] Policy evaluation: `rrc eval`, `rrc compare`, `rrc train-bc`, `rrc report`
+- [x] Dataset scoring: `capek score`
+- [x] Policy evaluation: `capek eval`, `capek compare`, `capek train-bc`, `capek report`
 - [x] Free open-source release (0.1.0, alpha)
+- [x] Renamed to Capek (0.2.0)
 - [ ] Calibrate thresholds on more real teleoperation datasets
 - [ ] Hosted team dashboard (paid; free for .edu)
 
 ## Community and contributing
 
-- **Questions, ideas, show-and-tell:** [GitHub Discussions](https://github.com/Sebilopez1/robot-report-card/discussions).
-- **Found a dataset where `rrc score` is wrong?** That's the most useful thing you can send.
-  [Open an issue](https://github.com/Sebilopez1/robot-report-card/issues) with the `rrc score` JSON (it contains no
+- **Questions, ideas, show-and-tell:** [GitHub Discussions](https://github.com/Sebilopez1/capek/discussions).
+- **Found a dataset where `capek score` is wrong?** That's the most useful thing you can send.
+  [Open an issue](https://github.com/Sebilopez1/capek/issues/new/choose) with the `capek score` JSON (it contains no
   video).
-- [CONTRIBUTING.md](https://github.com/Sebilopez1/robot-report-card/blob/main/CONTRIBUTING.md): dev install and test
-  profiles. [SECURITY.md](https://github.com/Sebilopez1/robot-report-card/blob/main/SECURITY.md): loading checkpoints
-  safely. [CHANGELOG.md](https://github.com/Sebilopez1/robot-report-card/blob/main/CHANGELOG.md).
+- [CONTRIBUTING.md](https://github.com/Sebilopez1/capek/blob/main/CONTRIBUTING.md): dev install and test
+  profiles. [CODE_OF_CONDUCT.md](https://github.com/Sebilopez1/capek/blob/main/CODE_OF_CONDUCT.md): how we treat
+  each other. [SECURITY.md](https://github.com/Sebilopez1/capek/blob/main/SECURITY.md): loading checkpoints
+  safely. [CHANGELOG.md](https://github.com/Sebilopez1/capek/blob/main/CHANGELOG.md).
 
 ## Citation
 
-If you use Robot Report Card in your research, please cite it (GitHub's "Cite this repository" button reads
-[CITATION.cff](https://github.com/Sebilopez1/robot-report-card/blob/main/CITATION.cff)):
+If you use Capek in your research, please cite it (GitHub's "Cite this repository" button reads
+[CITATION.cff](https://github.com/Sebilopez1/capek/blob/main/CITATION.cff)):
 
 ```bibtex
-@software{lopez2026robotreportcard,
+@software{lopez2026capek,
   author  = {Lopez, Sebi},
-  title   = {Robot Report Card: dataset scoring and honest policy evaluation for LeRobot},
+  title   = {Capek: dataset scoring and honest policy evaluation for LeRobot},
   year    = {2026},
-  version = {0.1.0},
-  url     = {https://github.com/Sebilopez1/robot-report-card},
+  version = {0.2.0},
+  url     = {https://github.com/Sebilopez1/capek},
   license = {Apache-2.0}
 }
 ```
@@ -354,6 +358,6 @@ follow Wilson (1927), McNemar (1947) and Newcombe (1998).
 
 ## License
 
-Apache License 2.0. See [LICENSE](https://github.com/Sebilopez1/robot-report-card/blob/main/LICENSE) and
-[NOTICE](https://github.com/Sebilopez1/robot-report-card/blob/main/NOTICE). The bundled SO-101 robot model comes
+Apache License 2.0. See [LICENSE](https://github.com/Sebilopez1/capek/blob/main/LICENSE) and
+[NOTICE](https://github.com/Sebilopez1/capek/blob/main/NOTICE). The bundled SO-101 robot model comes
 from TheRobotStudio's SO-ARM100 project (Apache-2.0).

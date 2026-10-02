@@ -5,15 +5,15 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from robot_report_card.eval import stats
-from robot_report_card.eval.report import (
+from capek.eval import stats
+from capek.eval.report import (
     BORDERLINE_SENTENCE,
     compare_json,
     compare_stats,
     compare_text,
     mde_sentence,
 )
-from robot_report_card.eval.runner import EpisodeOutcome, RolloutResult
+from capek.eval.runner import EpisodeOutcome, RolloutResult
 
 
 def _result(success: np.ndarray, spec: str) -> RolloutResult:
@@ -70,8 +70,8 @@ def test_hard_rows_mark_reasons_below_the_threshold() -> None:
     pytest.importorskip("pyarrow")
     from lerobot_files import smooth_reach
 
-    from robot_report_card.score.engine import ScoreConfig, score_dataset
-    from robot_report_card.score.reader import Dataset, EpisodeData
+    from capek.score.engine import ScoreConfig, score_dataset
+    from capek.score.reader import Dataset, EpisodeData
 
     rng = np.random.default_rng(3)
     eps = [smooth_reach(rng, 90, float(rng.uniform(0.005, 0.02))) for _ in range(30)] + [smooth_reach(rng, 90, 0.2)]

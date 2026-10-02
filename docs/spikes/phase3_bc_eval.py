@@ -22,9 +22,9 @@ import torch
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from phase3_stats import mcnemar_exact, newcombe_paired_diff, wilson  # noqa: E402
 
-from robot_report_card.bench.generators import GroupPolicy
-from robot_report_card.record import new_session, record_into
-from robot_report_card.sim.registry import make_env
+from capek.bench.generators import GroupPolicy
+from capek.record import new_session, record_into
+from capek.sim.registry import make_env
 
 FPS, T = 30, 90
 CLEAN_N = 200
@@ -35,7 +35,7 @@ TRAIN_SEEDS = int(os.environ.get("TRAIN_SEEDS", 3))
 
 def build(work: Path) -> dict[str, Path]:
     """Two exports: clean-only (200) and mixed (same 200 clean + 100 junk)."""
-    from robot_report_card.export.lerobot_writer import export_session, quiet_lerobot
+    from capek.export.lerobot_writer import export_session, quiet_lerobot
     env = make_env("so101_reach")
     out = {}
     for name, groups in [("clean", {"clean": CLEAN_N}), ("mixed", {"clean": CLEAN_N, **JUNK})]:
@@ -45,7 +45,7 @@ def build(work: Path) -> dict[str, Path]:
             for k, (g, n) in enumerate(groups.items()):
                 record_into(s, env, GroupPolicy(g), n, 20000 + k, T)  # same clean seeds in both sets
             with quiet_lerobot():
-                export_session(work / name / "session", root, f"rrc_p3/{name}")
+                export_session(work / name / "session", root, f"capek_p3/{name}")
         out[name] = root
     return out
 
@@ -61,14 +61,14 @@ def load(root: Path, keep: set[int] | None = None):
 
 
 def scorer_keep(root: Path) -> set[int]:
-    from robot_report_card.score.engine import score_dataset
-    from robot_report_card.score.reader import read_dataset
+    from capek.score.engine import score_dataset
+    from capek.score.reader import read_dataset
     res = score_dataset(read_dataset(root))
     return {e.episode_index for e in res.episodes if e.quality == "ok"}
 
 
 def outcome_keep(root: Path) -> set[int]:
-    tags = json.loads((root / "meta" / "rrc_tags.json").read_text())
+    tags = json.loads((root / "meta" / "capek_tags.json").read_text())
     return {int(k) for k, v in tags["episodes"].items() if v["sim_success"]}
 
 
@@ -133,7 +133,7 @@ def main(work: Path):
         "D mixed, sim-success-filtered": (roots["mixed"], keep_outc),
         "E mixed, scorer-ok AND success": (roots["mixed"], keep_score & keep_outc),
     }
-    tags = json.loads((roots["mixed"] / "meta" / "rrc_tags.json").read_text())["episodes"]
+    tags = json.loads((roots["mixed"] / "meta" / "capek_tags.json").read_text())["episodes"]
     grp = {int(k): v["policy_params"].get("bench_group", "?") for k, v in tags.items()}
     for label, keep in [("scorer", keep_score), ("sim-success", keep_outc), ("both", keep_score & keep_outc)]:
         comp = {}

@@ -1,4 +1,4 @@
-"""P2-2: `rrc record --append` (one session mixing policies / noise)."""
+"""P2-2: `capek record --append` (one session mixing policies / noise)."""
 
 from __future__ import annotations
 
@@ -9,9 +9,9 @@ import numpy as np
 import pytest
 from helpers import FakeEnv
 
-from robot_report_card import cli
-from robot_report_card.session import Session
-from robot_report_card.sim import registry
+from capek import cli
+from capek.session import Session
+from capek.sim import registry
 
 
 def _snapshot(root: Path) -> dict[str, bytes]:
@@ -127,8 +127,8 @@ def test_three_appends_give_one_contiguous_session(mixed: Path) -> None:
 
 
 def test_appended_episode_uses_session_wide_index(mixed: Path) -> None:
-    from robot_report_card.policies import make_policy
-    from robot_report_card.record import record_episode
+    from capek.policies import make_policy
+    from capek.record import record_episode
 
     env = registry.make_env("so101_reach")
     alone = record_episode(env, make_policy("scripted", noise=0.25), seed=1, episode_index=4, max_steps=20)
@@ -147,7 +147,7 @@ def test_rerunning_the_same_commands_gives_identical_arrays(mixed: Path, tmp_pat
 
 def test_export_carries_per_episode_policy_into_tags(mixed: Path, tmp_path: Path) -> None:
     pytest.importorskip("lerobot.datasets.lerobot_dataset")
-    from robot_report_card.export.lerobot_writer import read_tags
+    from capek.export.lerobot_writer import read_tags
 
     out = tmp_path / "ds"
     assert cli.main(["export", str(mixed), "--out", str(out)]) == 0

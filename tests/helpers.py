@@ -6,9 +6,9 @@ from pathlib import Path
 
 import numpy as np
 
-from robot_report_card import __version__
-from robot_report_card.features import make_features
-from robot_report_card.session import Episode, EpisodeMeta, Session, SessionInfo
+from capek import __version__
+from capek.features import make_features
+from capek.session import Episode, EpisodeMeta, Session, SessionInfo
 
 JOINTS = [f"{j}.pos" for j in ["shoulder_pan", "shoulder_lift", "elbow_flex", "wrist_flex", "wrist_roll", "gripper"]]
 FEATURES = make_features(JOINTS, ["target_x", "target_y", "target_z"], JOINTS)
@@ -37,7 +37,7 @@ def synthetic_episode(index: int, num_frames: int = 12, seed: int = 0, fps: int 
         final_error_m=0.01 if success else 0.05,
         termination_reason="max_steps",
         recorded_at="2026-09-24T00:00:00+00:00",
-        rrc_version=__version__,
+        capek_version=__version__,
     )
     return Episode(meta=meta, arrays=arrays)
 
@@ -49,7 +49,7 @@ def make_synthetic_session(root: Path, n: int = 4, num_frames: int = 12) -> Sess
         features=FEATURES,
         seeding="test",
         created_at="2026-09-24T00:00:00+00:00",
-        rrc_version=__version__,
+        capek_version=__version__,
     )
     s = Session.create(root, info)
     for i in range(n):
@@ -74,7 +74,7 @@ class FakeEnv:
         self.q = np.zeros(6)
 
     def reset(self, seed):
-        from robot_report_card.sim.base import Observation
+        from capek.sim.base import Observation
 
         self.episode += 1
         self.t = 0
@@ -83,7 +83,7 @@ class FakeEnv:
         return Observation(self.q.copy(), np.zeros(3)), {"target_qpos": target}
 
     def step(self, action):
-        from robot_report_card.sim.base import Observation, StepResult
+        from capek.sim.base import Observation, StepResult
 
         if self.fail_at == (self.episode, self.t):
             raise FloatingPointError("simulation diverged (non-finite qpos)")

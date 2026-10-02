@@ -1,6 +1,6 @@
-"""P3-4 (QA-owned): validate robot_report_card.eval.stats against independent references.
+"""P3-4 (QA-owned): validate capek.eval.stats against independent references.
 
-scipy is used only here (dev venv), never by rrc at runtime. Bars from docs/phase3-plan.md P3-4:
+scipy is used only here (dev venv), never by capek at runtime. Bars from docs/dev/phase3-plan.md P3-4:
 (a) Wilson / Clopper-Pearson == scipy binomtest(...).proportion_ci("wilson" / "exact") to 1e-9, n <= 200
 (b) mcnemar_exact(b, c) == scipy binomtest(b, b + c, 0.5).pvalue
 (c) Newcombe method 10 == QA's own implementation from the paper; exact enumeration of the paired multinomial on a
@@ -16,7 +16,7 @@ import math
 import numpy as np
 import pytest
 
-from robot_report_card.eval import stats
+from capek.eval import stats
 
 scipy_stats = pytest.importorskip("scipy.stats")
 

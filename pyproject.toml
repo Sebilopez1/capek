@@ -3,12 +3,12 @@ requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
 
 [project]
-name = "robot-report-card"
+name = "capek-tech"
 dynamic = ["version"]
 description = "Is it your data or your model? Dataset scoring and honest policy evaluation for LeRobot / SO-101 imitation learning."
 readme = "README.md"
 license = "Apache-2.0"
-license-files = ["LICENSE", "NOTICE", "src/robot_report_card/sim/assets/so101/LICENSE"]
+license-files = ["LICENSE", "NOTICE", "src/capek/sim/assets/so101/LICENSE"]
 requires-python = ">=3.10"
 authors = [{ name = "Sebi Lopez" }]
 keywords = ["robotics", "imitation-learning", "lerobot", "so-101", "dataset-quality", "evaluation"]
@@ -26,32 +26,32 @@ classifiers = [
 dependencies = ["numpy>=1.25"]
 
 [project.urls]
-Homepage = "https://github.com/Sebilopez1/robot-report-card"
-Issues = "https://github.com/Sebilopez1/robot-report-card/issues"
-Changelog = "https://github.com/Sebilopez1/robot-report-card/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/Sebilopez1/capek"
+Issues = "https://github.com/Sebilopez1/capek/issues"
+Changelog = "https://github.com/Sebilopez1/capek/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 sim = ["mujoco>=3.2"]
 # numpy 2.4 crashes lerobot 0.4.4's save_episode on shape-(1,) features (research brief G1), so the pin lives here
 lerobot = ["lerobot==0.4.4", "numpy<2.4"]
-# `rrc score`: reads LeRobot parquet directly (no lerobot / torch)
+# `capek score`: reads LeRobot parquet directly (no lerobot / torch)
 score = ["pyarrow>=15"]
-# `rrc eval` / `rrc compare` / `rrc train-bc`: sim rollouts + the torch MLP (`bc:`); `lerobot:` needs the lerobot extra
+# `capek eval` / `capek compare` / `capek train-bc`: sim rollouts + the torch MLP (`bc:`); `lerobot:` needs the lerobot extra
 eval = ["mujoco>=3.2", "torch>=2.2"]
 dev = ["pytest>=7", "ruff>=0.4"]
 
 [project.scripts]
-rrc = "robot_report_card.cli:main"
+capek = "capek.cli:main"
 
 [tool.hatch.version]
-path = "src/robot_report_card/__init__.py"
+path = "src/capek/__init__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/robot_report_card"]
+packages = ["src/capek"]
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "src/robot_report_card",
+    "src/capek",
     "tests",
     "README.md",
     "LICENSE",

@@ -1,9 +1,9 @@
 """Benchmark v2 (plan D1) built in memory via the phase-1 library; cached to npz per seed set.
 dev: base 1000 (mixed) / 1500 (clean-only 100);  held-out: base 5000 / 5500.  Tuning uses dev only."""
 import sys, numpy as np
-from robot_report_card.sim.registry import make_env
-from robot_report_card.policies import ScriptedReach, NoisyPolicy, RandomPolicy
-from robot_report_card.record import record_episode
+from capek.sim.registry import make_env
+from capek.policies import ScriptedReach, NoisyPolicy, RandomPolicy
+from capek.record import record_episode
 
 env = make_env("so101_reach")
 

@@ -13,33 +13,33 @@ import pytest
 
 pytest.importorskip("mujoco")
 
-RRC = [sys.executable, "-m", "robot_report_card.cli"]
+CAPEK = [sys.executable, "-m", "capek.cli"]
 
 
-def rrc(cwd: Path, *argv: str) -> str:
+def capek(cwd: Path, *argv: str) -> str:
     env = {**os.environ, "HF_HUB_OFFLINE": "1"}
-    r = subprocess.run([*RRC, *argv], cwd=cwd, capture_output=True, text=True, env=env, timeout=120)
-    assert r.returncode == 0, f"rrc {' '.join(argv)} failed:\n{r.stdout}\n{r.stderr}"
+    r = subprocess.run([*CAPEK, *argv], cwd=cwd, capture_output=True, text=True, env=env, timeout=120)
+    assert r.returncode == 0, f"capek {' '.join(argv)} failed:\n{r.stdout}\n{r.stderr}"
     return r.stdout
 
 
 def test_record_tag_list_export_load(tmp_path: Path) -> None:
-    rrc(tmp_path, "record", "--env", "so101_reach", "--policy", "scripted", "--episodes", "3", "--seed", "0",
+    capek(tmp_path, "record", "--env", "so101_reach", "--policy", "scripted", "--episodes", "3", "--seed", "0",
         "--out", "runs/demo")  # fmt: skip
     session = tmp_path / "runs" / "demo"
     rows = [json.loads(line) for line in (session / "episodes.jsonl").read_text().splitlines()]
     assert [r["num_frames"] for r in rows] == [90, 90, 90]
 
-    rrc(tmp_path, "tag", "runs/demo", "--episode", "2", "--label", "fail", "--note", "overshot")
-    listing = rrc(tmp_path, "list", "runs/demo")
+    capek(tmp_path, "tag", "runs/demo", "--episode", "2", "--label", "fail", "--note", "overshot")
+    listing = capek(tmp_path, "list", "runs/demo")
     for column in ("index", "length", "sim_success", "final_error_m", "label", "notes"):
         assert column in listing.splitlines()[0]
     assert "overshot" in listing
-    listed = json.loads(rrc(tmp_path, "list", "runs/demo", "--json"))
+    listed = json.loads(capek(tmp_path, "list", "runs/demo", "--json"))
     assert listed[2]["label"] == "fail" and listed[2]["notes"] == "overshot"
 
     pytest.importorskip("lerobot")
-    rrc(tmp_path, "export", "runs/demo", "--out", "datasets/demo", "--repo-id", "local/demo")
+    capek(tmp_path, "export", "runs/demo", "--out", "datasets/demo", "--repo-id", "local/demo")
     root = tmp_path / "datasets" / "demo"
     assert (root / "meta" / "info.json").is_file()
 
@@ -60,7 +60,7 @@ def test_record_tag_list_export_load(tmp_path: Path) -> None:
         np.testing.assert_allclose(item["action"].numpy(), z["action"][45], atol=1e-7)
         assert item["task"] == "Move the gripper tip to the target point."
 
-    tags = json.loads((root / "meta" / "rrc_tags.json").read_text())
+    tags = json.loads((root / "meta" / "capek_tags.json").read_text())
     assert tags["dataset"]["total_frames"] == ds.num_frames and tags["dataset"]["total_episodes"] == 3
     for row in listed:
         exported = dict(tags["episodes"][str(row["episode_index"])])

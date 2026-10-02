@@ -1,0 +1,32 @@
+name: Bug report
+description: A crash, a wrong number, or a command that doesn't do what the docs say.
+labels: ["bug"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Capek version
+      description: Output of `capek --version`
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: OS, Python version and install extras
+      placeholder: "macOS 15 (Apple Silicon), Python 3.11, capek-tech[score,sim,eval]"
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command and full output
+      description: The exact command and everything it printed, including any traceback.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect instead?
+    validations:
+      required: true

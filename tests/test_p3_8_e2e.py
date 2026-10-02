@@ -1,9 +1,9 @@
-"""P3-8 (QA-owned): the phase 3 headline, end to end through the installed `rrc` (plan DoD 9, decision D4).
+"""P3-8 (QA-owned): the phase 3 headline, end to end through the installed `capek` (plan DoD 9, decision D4).
 
-record the pinned mix (bench generators, one session via the --append path) -> rrc export -> rrc score ->
-rrc train-bc --keep all  vs  --keep ok-and-success (train seed 0) -> rrc compare (200 episodes, eval seed 900000).
+record the pinned mix (bench generators, one session via the --append path) -> capek export -> capek score ->
+capek train-bc --keep all  vs  --keep ok-and-success (train seed 0) -> capek compare (200 episodes, eval seed 900000).
 Margin measured 2026-09-25 on this recipe: p = 3.7e-9 at train seed 0, worst 6.1e-5 over train seeds 0-4.
-The gated full version (RRC_E2E_FULL=1) reproduces research brief §4 B vs E (200 clean + 100 junk).
+The gated full version (CAPEK_E2E_FULL=1) reproduces research brief §4 B vs E (200 clean + 100 junk).
 """
 
 from __future__ import annotations
@@ -20,22 +20,22 @@ import pytest
 pytest.importorskip("mujoco")
 pytest.importorskip("torch")
 pytest.importorskip("pyarrow")
-pytest.importorskip("lerobot")  # rrc export
+pytest.importorskip("lerobot")  # capek export
 
 PINNED_MIX = "clean:60,noise025:10,random:10,hesitation:5,wrong:5"
 FULL_MIX = "clean:200,noise025:30,random:30,hesitation:20,wrong:20"
 
 
-def _rrc() -> list[str]:
-    exe = Path(sys.executable).parent / "rrc"
-    found = str(exe) if exe.is_file() else shutil.which("rrc")
+def _capek() -> list[str]:
+    exe = Path(sys.executable).parent / "capek"
+    found = str(exe) if exe.is_file() else shutil.which("capek")
     if not found:
-        pytest.skip("the rrc console script is not installed")
+        pytest.skip("the capek console script is not installed")
     return [found]
 
 
 def run(cwd: Path, *argv: str, cli: list[str] | None = None) -> str:
-    cmd = [*(cli or _rrc()), *argv]
+    cmd = [*(cli or _capek()), *argv]
     env = {**os.environ, "HF_HUB_OFFLINE": "1"}
     r = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, env=env, timeout=600)
     assert r.returncode == 0, f"{' '.join(cmd)} failed ({r.returncode}):\n{r.stdout}\n{r.stderr}"
@@ -43,7 +43,7 @@ def run(cwd: Path, *argv: str, cli: list[str] | None = None) -> str:
 
 
 def headline(tmp: Path, mix: str, seed: int) -> dict:
-    bench = [sys.executable, "-m", "robot_report_card.bench"]
+    bench = [sys.executable, "-m", "capek.bench"]
     run(tmp, "record", "--out", "session", "--groups", mix, "--seed", str(seed), cli=bench)
     run(tmp, "export", "session", "--out", "dataset", "--repo-id", "local/p3_headline")
     run(tmp, "score", "dataset", "--json-out", "score.json")
@@ -76,10 +76,10 @@ def test_headline_filtering_by_score_and_outcome_beats_unfiltered(tmp_path: Path
     report, p = r["report"], r["report"]["paired"]
     assert p["mcnemar_p"] < 0.01, p  # DoD 9
     _check_wording(r["text"], report)
-    # the filter did what it says: quality ok (rrc score) AND sim success, recorded in the checkpoint
-    meta = json.loads((tmp_path / "ckpt_filtered" / "rrc_policy.json").read_text())
+    # the filter did what it says: quality ok (capek score) AND sim success, recorded in the checkpoint
+    meta = json.loads((tmp_path / "ckpt_filtered" / "capek_policy.json").read_text())
     score = json.loads((tmp_path / "score.json").read_text())
-    tags = json.loads((tmp_path / "dataset" / "meta" / "rrc_tags.json").read_text())["episodes"]
+    tags = json.loads((tmp_path / "dataset" / "meta" / "capek_tags.json").read_text())["episodes"]
     expected = sorted(
         e["episode_index"]
         for e in score["episodes"]
@@ -91,7 +91,7 @@ def test_headline_filtering_by_score_and_outcome_beats_unfiltered(tmp_path: Path
     assert "random" not in kept_groups and "noise025" not in kept_groups and "wrong" not in kept_groups
 
 
-@pytest.mark.skipif(os.environ.get("RRC_E2E_FULL") != "1", reason="full headline: set RRC_E2E_FULL=1 (~90 s)")
+@pytest.mark.skipif(os.environ.get("CAPEK_E2E_FULL") != "1", reason="full headline: set CAPEK_E2E_FULL=1 (~90 s)")
 def test_full_headline_reproduces_brief_b_vs_e(tmp_path: Path) -> None:
     """Research brief §4: B (unfiltered 300) 1/200 vs E (scorer ok AND success) 121/200 at train seed 0."""
     r = headline(tmp_path, FULL_MIX, 20000)

@@ -9,8 +9,8 @@ pytest.importorskip("pyarrow")
 
 from lerobot_files import smooth_reach  # noqa: E402
 
-from robot_report_card.score.engine import ScoreConfig, score_dataset  # noqa: E402
-from robot_report_card.score.reader import Dataset, EpisodeData  # noqa: E402
+from capek.score.engine import ScoreConfig, score_dataset  # noqa: E402
+from capek.score.reader import Dataset, EpisodeData  # noqa: E402
 
 
 def _ds(eps: list[dict[str, np.ndarray]]) -> Dataset:

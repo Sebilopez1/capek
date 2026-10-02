@@ -13,9 +13,9 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from robot_report_card import cli
-from robot_report_card.eval.lerobot_adapter import check_inputs
-from robot_report_card.eval.policies import PolicySpecError
+from capek import cli
+from capek.eval.lerobot_adapter import check_inputs
+from capek.eval.policies import PolicySpecError
 
 
 def test_eval_lerobot_writes_a_valid_report(tiny_act: Path, tmp_path: Path) -> None:
@@ -35,8 +35,8 @@ def test_json_stdout_stays_valid(tiny_act: Path, capsys) -> None:
 
 
 def test_reset_clears_the_action_queue(tiny_act: Path) -> None:
-    from robot_report_card.eval.policies import ResetContext, load_policy
-    from robot_report_card.sim.registry import make_env
+    from capek.eval.policies import ResetContext, load_policy
+    from capek.sim.registry import make_env
 
     policy = load_policy(f"lerobot:{tiny_act}")
     env = make_env("so101_reach")
@@ -93,4 +93,4 @@ def test_missing_lerobot_or_config_is_a_clean_error(tmp_path: Path, monkeypatch,
     monkeypatch.setitem(sys.modules, "lerobot.policies.factory", None)
     assert cli.main(["eval", f"lerobot:{ckpt}", *out]) == 1
     err = capsys.readouterr().err
-    assert 'pip install "robot-report-card[lerobot]"' in err and "Traceback" not in err
+    assert 'pip install "capek-tech[lerobot]"' in err and "Traceback" not in err

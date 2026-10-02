@@ -1,4 +1,4 @@
-"""QA phase 4 R1: `rrc report` linking respects the checkpoint's training filter."""
+"""QA phase 4 R1: `capek report` linking respects the checkpoint's training filter."""
 
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ from test_p4_5_report_rules import (
     score_json,
 )
 
-from robot_report_card.eval.report import compare_json, compare_stats
+from capek.eval.report import compare_json, compare_stats
 
 
 def _write(tmp: Path, data: Data, a_keep: dict, b_keep: dict, compare: str = "significant") -> dict:

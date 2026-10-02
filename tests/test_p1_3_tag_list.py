@@ -1,4 +1,4 @@
-"""P1-3: `rrc tag` and `rrc list` (synthetic sessions; no mujoco / lerobot needed)."""
+"""P1-3: `capek tag` and `capek list` (synthetic sessions; no mujoco / lerobot needed)."""
 
 from __future__ import annotations
 
@@ -12,8 +12,8 @@ from pathlib import Path
 import pytest
 from helpers import make_synthetic_session
 
-from robot_report_card import atomic, cli
-from robot_report_card.session import Session
+from capek import atomic, cli
+from capek.session import Session
 
 
 @pytest.fixture
@@ -143,23 +143,23 @@ BLOCKER = textwrap.dedent(
             if name.split(".")[0] in {"mujoco", "lerobot", "torch"}:
                 raise ImportError(f"blocked {name}")
     sys.meta_path.insert(0, Block())
-    from robot_report_card import cli
+    from capek import cli
     sys.exit(cli.main(sys.argv[1:]))
     """
 )
 
 
-def _rrc_subprocess(*argv: str) -> subprocess.CompletedProcess[str]:
+def _capek_subprocess(*argv: str) -> subprocess.CompletedProcess[str]:
     env = {**os.environ, "HF_HUB_OFFLINE": "1"}
     return subprocess.run([sys.executable, "-c", BLOCKER, *argv], capture_output=True, text=True, env=env)
 
 
 def test_tags_persist_across_processes_without_mujoco_or_lerobot(sess: Path) -> None:
-    r = _rrc_subprocess("tag", str(sess), "--episode", "2", "--label", "fail", "--note", "overshot")
+    r = _capek_subprocess("tag", str(sess), "--episode", "2", "--label", "fail", "--note", "overshot")
     assert r.returncode == 0, r.stderr
-    r = _rrc_subprocess("list", str(sess), "--json")
+    r = _capek_subprocess("list", str(sess), "--json")
     assert r.returncode == 0, r.stderr
     row = json.loads(r.stdout)[2]
     assert (row["label"], row["notes"]) == ("fail", "overshot")
-    r = _rrc_subprocess("export", str(sess), "--out", str(sess.parent / "ds"), "--repo-id", "local/x")
+    r = _capek_subprocess("export", str(sess), "--out", str(sess.parent / "ds"), "--repo-id", "local/x")
     assert r.returncode != 0 and "Traceback" not in r.stderr

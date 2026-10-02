@@ -1,14 +1,14 @@
 cff-version: 1.2.0
-message: "If you use Robot Report Card in your research, please cite it as below."
-title: "Robot Report Card: dataset scoring and honest policy evaluation for LeRobot"
+message: "If you use Capek in your research, please cite it as below."
+title: "Capek: dataset scoring and honest policy evaluation for LeRobot"
 type: software
 authors:
   - given-names: Sebi
     family-names: Lopez
-repository-code: "https://github.com/Sebilopez1/robot-report-card"
-url: "https://pypi.org/project/robot-report-card/"
+repository-code: "https://github.com/Sebilopez1/capek"
+url: "https://pypi.org/project/capek-tech/"
 license: Apache-2.0
-version: 0.1.0
+version: 0.2.0
 date-released: "2026-10-01"
 keywords:
   - robotics

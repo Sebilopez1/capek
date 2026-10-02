@@ -11,7 +11,7 @@ import pytest
 
 REPO = Path(__file__).resolve().parents[1]
 TOOLS = REPO / "tools"
-SRC = REPO / "src" / "robot_report_card"
+SRC = REPO / "src" / "capek"
 needs_repo = pytest.mark.skipif(not (TOOLS / "release_check.py").is_file(), reason="tools/ is not in the sdist")
 
 
@@ -32,11 +32,11 @@ def _tool(name: str):
 
 
 def test_pep639_metadata_and_extras() -> None:
-    from robot_report_card import __version__
+    from capek import __version__
 
     cfg = _pyproject()
     proj = cfg["project"]
-    assert __version__ == "0.1.0"
+    assert __version__ == "0.2.0"
     assert cfg["build-system"]["requires"] == ["hatchling>=1.27"]
     assert proj["license"] == "Apache-2.0"
     for f in proj["license-files"]:
@@ -47,16 +47,16 @@ def test_pep639_metadata_and_extras() -> None:
     assert proj["dependencies"] == ["numpy>=1.25"]  # the <2.4 pin only matters for lerobot 0.4.4
     assert "numpy<2.4" in proj["optional-dependencies"]["lerobot"]
     assert set(proj["optional-dependencies"]) == {"sim", "lerobot", "score", "eval", "dev"}
-    assert all("/robot-report-card" in url for url in proj["urls"].values())
+    assert all("/capek" in url for url in proj["urls"].values())
     include = cfg["tool"]["hatch"]["build"]["targets"]["sdist"]["include"]
     for spike in ("docs/spikes/phase2_score_proto.py", "docs/spikes/phase3_stats.py"):
         assert spike in include and (REPO / spike).is_file()
 
 
 def test_install_hints_use_the_pypi_form() -> None:
-    from robot_report_card.hints import install_hint
+    from capek.hints import install_hint
 
-    assert install_hint("score") == 'pip install "robot-report-card[score]"'
+    assert install_hint("score") == 'pip install "capek-tech[score]"'
     offenders = [
         f"{p.relative_to(REPO)}:{i}"
         for p in SRC.rglob("*.py")
@@ -78,7 +78,7 @@ def test_install_hints_use_the_pypi_form() -> None:
 def test_score_hint_without_pyarrow(tmp_path: Path, monkeypatch, capsys) -> None:
     import json
 
-    from robot_report_card import cli
+    from capek import cli
 
     ds = tmp_path / "ds"
     (ds / "data" / "chunk-000").mkdir(parents=True)
@@ -87,7 +87,7 @@ def test_score_hint_without_pyarrow(tmp_path: Path, monkeypatch, capsys) -> None
     (ds / "meta" / "info.json").write_text(json.dumps({"codebase_version": "v3.0", "fps": 30}))
     monkeypatch.setitem(sys.modules, "pyarrow.parquet", None)
     assert cli.main(["score", str(ds), "--json-out", str(tmp_path / "r.json")]) == 1
-    assert 'pip install "robot-report-card[score]"' in capsys.readouterr().err
+    assert 'pip install "capek-tech[score]"' in capsys.readouterr().err
 
 
 @needs_repo
@@ -100,21 +100,20 @@ def test_placeholder_only_in_allowed_files() -> None:
 @needs_repo
 def test_set_github_owner_replaces_everywhere_and_refuses_strays(tmp_path: Path, capsys) -> None:
     owner = _tool("set_github_owner")
-    (tmp_path / "pyproject.toml").write_text('Homepage = "https://github.com/GITHUB_OWNER/robot-report-card"\n')
+    (tmp_path / "pyproject.toml").write_text('Homepage = "https://github.com/GITHUB_OWNER/capek"\n')
     (tmp_path / "docs" / "launch").mkdir(parents=True)
-    (tmp_path / "docs" / "launch" / "x-thread.md").write_text(
-        "github.com/GITHUB_OWNER/robot-report-card GITHUB_OWNER\n"
-    )
-    (tmp_path / "STATUS.md").write_text("we use a GITHUB_OWNER placeholder\n")  # crew record: left alone
+    (tmp_path / "docs" / "launch" / "x-thread.md").write_text("github.com/GITHUB_OWNER/capek GITHUB_OWNER\n")
+    (tmp_path / "docs" / "dev").mkdir()
+    (tmp_path / "docs" / "dev" / "STATUS.md").write_text("we use a GITHUB_OWNER placeholder\n")  # crew record
     (tmp_path / "src.py").write_text("GITHUB_OWNER = 1\n")  # stray -> refused
     assert owner.main(["acme", "--root", str(tmp_path)]) == 1
     assert "outside the allowed files: src.py" in capsys.readouterr().err
     (tmp_path / "src.py").unlink()
     assert owner.main(["bad name!", "--root", str(tmp_path)]) == 2
     assert owner.main(["acme-labs", "--root", str(tmp_path)]) == 0
-    assert "acme-labs/robot-report-card" in (tmp_path / "pyproject.toml").read_text()
+    assert "acme-labs/capek" in (tmp_path / "pyproject.toml").read_text()
     assert (tmp_path / "docs/launch/x-thread.md").read_text().count("acme-labs") == 2
-    assert "GITHUB_OWNER" in (tmp_path / "STATUS.md").read_text()
+    assert "GITHUB_OWNER" in (tmp_path / "docs" / "dev" / "STATUS.md").read_text()
     assert owner.occurrences(tmp_path) == {}
 
 
@@ -130,7 +129,7 @@ def test_denylist_check_reports_locations_not_entries(tmp_path: Path, monkeypatc
     hits = rc.denylist_hits(entries, tmp_path)
     assert hits == ["entry #1: a.md:2"]
     assert not any("secret" in h.lower() for h in hits)
-    monkeypatch.setenv("RRC_REDACTIONS", str(deny))
+    monkeypatch.setenv("CAPEK_REDACTIONS", str(deny))
     assert rc.find_denylist(None) == deny
     assert rc.find_denylist(str(tmp_path / "missing.txt")) == deny  # falls through to the env var
 
@@ -143,7 +142,7 @@ def test_denylist_file_name_hit_does_not_reveal_the_path(tmp_path: Path) -> None
     hits = rc.denylist_hits(["secret-dataset"], tmp_path)
     assert hits == ["entry #1: a tracked file name (index 0)"]
     assert not any("secret" in h or "notes/" in h for h in hits)
-    assert rc.DEFAULT_DENYLISTS == ("~/.rrc_redactions.txt",)
+    assert rc.DEFAULT_DENYLISTS == ("~/.capek_redactions.txt", "~/.rrc_redactions.txt")
     assert "/home/claude" not in (TOOLS / "release_check.py").read_text()
 
 
@@ -158,7 +157,7 @@ def test_release_check_never_uploads() -> None:
 @needs_repo
 def test_set_github_owner_check_mode_exits_nonzero_while_placeholder_left(tmp_path: Path, capsys) -> None:
     owner = _tool("set_github_owner")
-    (tmp_path / "pyproject.toml").write_text('Homepage = "https://github.com/GITHUB_OWNER/robot-report-card"\n')
+    (tmp_path / "pyproject.toml").write_text('Homepage = "https://github.com/GITHUB_OWNER/capek"\n')
     assert owner.main(["--check", "--root", str(tmp_path)]) == 1
     assert "still present" in capsys.readouterr().err
     assert owner.main(["acme", "--dry-run", "--root", str(tmp_path)]) == 0

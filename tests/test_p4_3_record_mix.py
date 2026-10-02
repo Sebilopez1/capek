@@ -1,4 +1,4 @@
-"""P4-3: `rrc record --mix` (byte-identical to `bench record`), --list-groups, and the independent `wrong` goal."""
+"""P4-3: `capek record --mix` (byte-identical to `bench record`), --list-groups, and the independent `wrong` goal."""
 
 from __future__ import annotations
 
@@ -10,10 +10,10 @@ import pytest
 
 pytest.importorskip("mujoco")
 
-from robot_report_card import cli  # noqa: E402
-from robot_report_card.bench.__main__ import main as bench_main  # noqa: E402
-from robot_report_card.bench.spec import MIXED  # noqa: E402
-from robot_report_card.session import Session  # noqa: E402
+from capek import cli  # noqa: E402
+from capek.bench.__main__ import main as bench_main  # noqa: E402
+from capek.bench.spec import MIXED  # noqa: E402
+from capek.session import Session  # noqa: E402
 
 SMALL_MIX = "clean:3,noise025:1,random:1,hesitation:1,wrong:1,return_home:1"
 
@@ -33,7 +33,7 @@ def _info(root: Path) -> dict:
 
 @pytest.mark.parametrize("profile", ["standard", "low"])
 def test_mix_is_byte_identical_to_bench_record(tmp_path: Path, profile: str) -> None:
-    a, b = tmp_path / "bench", tmp_path / "rrc"
+    a, b = tmp_path / "bench", tmp_path / "capek"
     assert bench_main(["record", "--out", str(a), "--groups", SMALL_MIX, "--seed", "30000", "--noise", profile]) == 0
     argv = ["record", "--mix", SMALL_MIX, "--seed", "30000", "--noise-profile", profile, "--out", str(b), "-q"]
     assert cli.main(argv) == 0
@@ -102,7 +102,7 @@ def test_wrong_policy_independent_by_default_and_mirrored_on_request(tmp_path: P
     ]
     assert cli.main([*argv, "-q"]) == 0
     ind, mir = Session.open(tmp_path / "ind"), Session.open(tmp_path / "mir")
-    from robot_report_card.sim.registry import make_env
+    from capek.sim.registry import make_env
 
     env = make_env("so101_reach")
     for m in ind.read_metas():
@@ -119,7 +119,7 @@ def test_wrong_policy_independent_by_default_and_mirrored_on_request(tmp_path: P
 
 
 def test_bad_wrong_goal_value_and_old_sessions_still_load(tmp_path: Path) -> None:
-    from robot_report_card.policies import make_policy
+    from capek.policies import make_policy
 
     with pytest.raises(ValueError, match="--wrong-goal"):
         make_policy("wrong", wrong_goal="sideways")

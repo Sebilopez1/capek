@@ -1,4 +1,4 @@
-"""P2-1: phase 1 backlog - corrupt .npz on export, and `rrc record | head` exiting like SIGPIPE."""
+"""P2-1: phase 1 backlog - corrupt .npz on export, and `capek record | head` exiting like SIGPIPE."""
 
 from __future__ import annotations
 
@@ -11,9 +11,9 @@ import numpy as np
 import pytest
 from helpers import FakeEnv, make_synthetic_session
 
-from robot_report_card import cli
-from robot_report_card.session import Session, SessionError
-from robot_report_card.sim import registry
+from capek import cli
+from capek.session import Session, SessionError
+from capek.sim import registry
 
 
 def _corrupt(path: Path) -> None:
@@ -47,7 +47,7 @@ def test_record_piped_into_closed_reader_exits_141_in_process(tmp_path: Path, mo
 def test_record_pipe_to_head_real_cli(tmp_path: Path) -> None:
     pytest.importorskip("mujoco")
     out = tmp_path / "s"
-    cmd = f"{sys.executable} -m robot_report_card.cli record --episodes 400 --max-steps 3 --out {out} | head -1"
+    cmd = f"{sys.executable} -m capek.cli record --episodes 400 --max-steps 3 --out {out} | head -1"
     env = {**os.environ, "HF_HUB_OFFLINE": "1"}
     r = subprocess.run(["bash", "-o", "pipefail", "-c", cmd], capture_output=True, text=True, env=env, timeout=120)
     assert r.returncode == cli.EXIT_BROKEN_PIPE, r.stderr
@@ -72,6 +72,6 @@ def test_export_corrupt_npz_fails_cleanly(tmp_path: Path, capsys, kind: str) -> 
     out = tmp_path / "ds"
     assert cli.main(["export", str(tmp_path / "s"), "--out", str(out)]) == 1
     err = capsys.readouterr().err
-    assert err.startswith("rrc: error:") and "Traceback" not in err
+    assert err.startswith("capek: error:") and "Traceback" not in err
     assert ("corrupt episode file" in err) if kind == "not_a_zip" else ("action" in err)
     assert not out.exists()

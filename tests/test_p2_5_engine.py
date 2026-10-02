@@ -15,9 +15,9 @@ pytest.importorskip("pyarrow")
 
 from lerobot_files import JOINTS, smooth_reach, write_dataset  # noqa: E402
 
-from robot_report_card.score import engine, signals  # noqa: E402
-from robot_report_card.score.engine import SIGNALS, ScoreConfig, score_dataset  # noqa: E402
-from robot_report_card.score.reader import Dataset, EpisodeData, read_dataset  # noqa: E402
+from capek.score import engine, signals  # noqa: E402
+from capek.score.engine import SIGNALS, ScoreConfig, score_dataset  # noqa: E402
+from capek.score.reader import Dataset, EpisodeData, read_dataset  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[1]
 FPS = 30.0

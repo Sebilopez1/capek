@@ -16,7 +16,7 @@ pytest.importorskip("pyarrow")
 
 from lerobot_files import smooth_reach, v3_to_v2, write_dataset  # noqa: E402
 
-from robot_report_card.score.reader import ReaderError, read_dataset  # noqa: E402
+from capek.score.reader import ReaderError, read_dataset  # noqa: E402
 
 
 def _episodes(n: int = 5, frames: int = 40, seed: int = 0) -> list[dict[str, np.ndarray]]:
@@ -111,7 +111,7 @@ def test_13500_frames_under_one_second(tmp_path: Path) -> None:
 def test_reader_never_imports_lerobot_or_torch(tmp_path: Path) -> None:
     root = write_dataset(tmp_path / "ds", _episodes(2))
     code = (
-        "import sys; from robot_report_card.score.reader import read_dataset; "
+        "import sys; from capek.score.reader import read_dataset; "
         f"d = read_dataset({str(root)!r}); assert d.num_frames == 80; "
         "bad = sorted(m for m in sys.modules if m.split('.')[0] in ('lerobot', 'torch')); print(bad)"
     )
@@ -132,11 +132,11 @@ def _set_feature_shape(root: Path, key: str, shape: list[int]) -> None:
     (root / "meta" / "info.json").write_text(json.dumps(info))
 
 
-# ---- against lerobot's own loader on a real `rrc export` (lerobot venv only) ----------------------------------
+# ---- against lerobot's own loader on a real `capek export` (lerobot venv only) ----------------------------------
 def test_arrays_equal_lerobot_dataset_on_real_export(tmp_path: Path) -> None:
     pytest.importorskip("mujoco")
     lerobot_dataset = pytest.importorskip("lerobot.datasets.lerobot_dataset")
-    from robot_report_card import cli
+    from capek import cli
 
     session = tmp_path / "s"
     assert cli.main(["record", "--episodes", "2", "--noise", "0.1", "--out", str(session), "-q"]) == 0

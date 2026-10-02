@@ -5,9 +5,9 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from robot_report_card.score import signals
-from robot_report_card.score.engine import ScoreConfig, score_dataset
-from robot_report_card.score.reader import Dataset, EpisodeData
+from capek.score import signals
+from capek.score.engine import ScoreConfig, score_dataset
+from capek.score.reader import Dataset, EpisodeData
 
 
 def test_split_is_never_below_net_on_random_traces() -> None:

@@ -1,0 +1,52 @@
+name: "capek score is wrong on my dataset"
+description: An episode is flagged but looks fine, or a bad episode isn't flagged. The most useful report you can send.
+labels: ["scoring"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks! Only share data you're allowed to share, and please don't name other people's datasets or episodes
+        without their permission. The `capek score` JSON report contains no video.
+  - type: input
+    id: version
+    attributes:
+      label: Capek version
+      description: Output of `capek --version`
+      placeholder: "0.2.0"
+    validations:
+      required: true
+  - type: input
+    id: command
+    attributes:
+      label: Command you ran
+      placeholder: "capek score ~/data/my_dataset --json-out report.json"
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What went wrong?
+      options:
+        - Flagged, but the episode looks fine to me (false positive)
+        - Not flagged, but the episode is bad (missed)
+        - Wrong reason given in the "why" column
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: episodes
+    attributes:
+      label: Which episodes, and what did you see?
+      description: Episode indices and what the robot actually did in them.
+    validations:
+      required: true
+  - type: textarea
+    id: dataset
+    attributes:
+      label: About the dataset
+      description: Robot (e.g. SO-101), how it was recorded (teleop, scripted), LeRobot version, and a link if it's public.
+  - type: textarea
+    id: report
+    attributes:
+      label: The capek score JSON report
+      description: Drag the .json file here, or paste the entries for the episodes above.

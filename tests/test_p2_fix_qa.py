@@ -13,9 +13,9 @@ pytest.importorskip("pyarrow")
 from helpers import FakeEnv  # noqa: E402
 from lerobot_files import JOINTS, smooth_reach, write_dataset  # noqa: E402
 
-from robot_report_card import cli  # noqa: E402
-from robot_report_card.score.engine import RELATIVE_ASSUMPTION, ScoreConfig, score_dataset  # noqa: E402
-from robot_report_card.score.reader import ReaderError, read_dataset  # noqa: E402
+from capek import cli  # noqa: E402
+from capek.score.engine import RELATIVE_ASSUMPTION, ScoreConfig, score_dataset  # noqa: E402
+from capek.score.reader import ReaderError, read_dataset  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[1]
 UNIFORM_JUNK = (
@@ -82,7 +82,7 @@ def test_uniform_junk_sentence_in_summary_json_and_readme(tmp_path: Path, capsys
     assert UNIFORM_JUNK in json.loads((tmp_path / "r.json").read_text())["summary"]["assumption"]
     readme = " ".join((REPO / "README.md").read_text().split())
     assert UNIFORM_JUNK in readme
-    assert "--overwrite" in readme and "re-run `rrc score`" in readme  # N4
+    assert "--overwrite" in readme and "re-run `capek score`" in readme  # N4
 
 
 # ---- N1 ----------------------------------------------------------------------------------------------------------
@@ -110,7 +110,7 @@ def test_success_column_in_some_files_only_is_ignored_with_note(tmp_path: Path) 
 
 # ---- N2 ----------------------------------------------------------------------------------------------------------
 def test_append_with_corrupt_session_json_names_the_file(tmp_path: Path, monkeypatch, capsys) -> None:
-    from robot_report_card.sim import registry
+    from capek.sim import registry
 
     monkeypatch.setattr(registry, "make_env", lambda env_id: FakeEnv())
     out = tmp_path / "s"

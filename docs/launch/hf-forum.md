@@ -1,7 +1,7 @@
-> **DRAFT — for Sebi to edit and post. The crew posts nothing.** Every number comes from STATUS.md. Name no third-party dataset, org or person.
+> **DRAFT — for Sebi to edit and post. The crew posts nothing.** Every number comes from docs/dev/STATUS.md. Name no third-party dataset, org or person.
 
 **Where:** discuss.huggingface.co, in the LeRobot category (or the closest one available).
-**Title:** Robot Report Card: dataset scoring and honest policy evaluation for LeRobot / SO-101 (open source)
+**Title:** Capek: dataset scoring and honest policy evaluation for LeRobot / SO-101 (open source)
 
 ---
 
@@ -9,21 +9,22 @@ Hugging Face's own post on the LeRobot community datasets listed real quality pr
 broken or too-short episodes, inconsistent features. Behind all of them is a simpler question that anyone training an SO-101 policy runs into:
 **when a policy performs badly, is it the data or the model?**
 
-**Robot Report Card** (Apache-2.0) is a small CLI that tries to answer that with evidence instead of guesses:
+**Capek** (Apache-2.0) is a small CLI that tries to answer that with evidence instead of guesses:
 
-1. **`rrc score`** reads a LeRobot dataset on disk (v3.0, v2.1 or v2.0; parquet only, no videos needed) and scores every
+1. **`capek score`** reads a LeRobot dataset on disk (v3.0, v2.1 or v2.0; parquet only, no videos needed) and scores every
    episode's motion against the rest of the dataset: jitter, jerk, hesitation, dithering, actions pinned at limits,
    commands the arm doesn't follow. It also shows outcome evidence (success column or labels) separately. It needs
    only pyarrow, and it never writes into the dataset.
-2. **`rrc eval` / `rrc compare`** run policies in a simulated SO-101 reach task on the same seeds and report success
+2. **`capek eval` / `capek compare`** run policies in a simulated SO-101 reach task on the same seeds and report success
    rates with Wilson CIs, an exact McNemar test, a CI on the difference, and the smallest difference the test could
    have detected. "No detectable difference" is never reported as "no difference".
-3. **`rrc report`** puts the dataset, policy and regression results on one page, with rule-based verdicts worded
+3. **`capek report`** puts the dataset, policy and regression results on one page, with rule-based verdicts worded
    "consistent with", never "caused by", and a fixed "Can't tell" section.
 
 **What we've measured, with caveats:**
-- On a public 10-episode SO-101 dataset (not named here): 1 true positive and 1 false positive, a return-to-home
-  motion. The false positive is fixed and verified in simulation; the re-check on the real dataset is still pending.
+- On a public 10-episode SO-101 dataset (not named here): v0.1.0 flags exactly one episode, which really is shaky
+  (checked against the video). An earlier version also flagged a normal return-to-home motion; that false positive
+  is fixed and re-checked on the same real data. Ten episodes is a small sample, which is why I'm asking for more.
 - On a simulated benchmark with known ground truth, junk motion ranks almost perfectly (AUROC ≥ 0.99). At most 2% of
   good episodes are flagged at standard noise.
 - In simulation, on one task: two checkpoints trained on the same mixed data, unfiltered vs filtered to quality-ok
@@ -36,11 +37,11 @@ every episode (scores are relative); anything about your real robot (policy eval
 The thresholds are tuned in simulation.
 
 ```bash
-pip install "robot-report-card[score]"
-rrc score path/to/your_lerobot_dataset
+pip install "capek-tech[score]"   # https://pypi.org/p/capek-tech
+capek score path/to/your_lerobot_dataset
 ```
 
-Repo, docs and the full list of limits: https://github.com/Sebilopez1/robot-report-card
+Repo, docs and the full list of limits: https://github.com/Sebilopez1/capek
 
-**I'd love datasets where it's wrong.** If you share an `rrc score` JSON (no video inside) and tell me which flags
+**I'd love datasets where it's wrong.** If you share a `capek score` JSON (no video inside) and tell me which flags
 look wrong to you, that's the most useful thing you can do for the project. Please share only data you're allowed to share.

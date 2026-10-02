@@ -1,4 +1,4 @@
-"""P1-4: `rrc export` -> LeRobot v3.0 + meta/rrc_tags.json (offline; synthetic sessions)."""
+"""P1-4: `capek export` -> LeRobot v3.0 + meta/capek_tags.json (offline; synthetic sessions)."""
 
 from __future__ import annotations
 
@@ -9,15 +9,15 @@ import numpy as np
 import pytest
 from helpers import FEATURES, make_synthetic_session
 
-from robot_report_card import cli
-from robot_report_card.session import Session
+from capek import cli
+from capek.session import Session
 
 N_EPISODES, N_FRAMES = 4, 12
 
 
 lerobot_dataset = pytest.importorskip("lerobot.datasets.lerobot_dataset")
 LeRobotDataset = lerobot_dataset.LeRobotDataset
-from robot_report_card.export.lerobot_writer import fingerprint_problems, read_tags  # noqa: E402
+from capek.export.lerobot_writer import fingerprint_problems, read_tags  # noqa: E402
 
 
 @pytest.fixture(scope="module")
@@ -67,7 +67,7 @@ def test_tags_snapshot_matches_session_and_info(exported: Path, session_dir: Pat
     tags = read_tags(exported)
     info = json.loads((exported / "meta" / "info.json").read_text())
     assert fingerprint_problems(exported) == []
-    assert tags["schema_version"] == 1 and tags["tool"] == "robot-report-card"
+    assert tags["schema_version"] == 1 and tags["tool"] == "capek"
     assert tags["dataset"] == {
         "codebase_version": info["codebase_version"],
         "total_episodes": info["total_episodes"],
@@ -133,7 +133,7 @@ def test_nothing_to_export_and_stale_fingerprint(exported: Path, session_dir: Pa
     (stale / "meta" / "info.json").write_bytes((exported / "meta" / "info.json").read_bytes())
     tags = read_tags(exported)
     tags["dataset"]["total_frames"] += 1
-    (stale / "meta" / "rrc_tags.json").write_text(json.dumps(tags))
+    (stale / "meta" / "capek_tags.json").write_text(json.dumps(tags))
     assert any("total_frames" in p for p in fingerprint_problems(stale))
 
 

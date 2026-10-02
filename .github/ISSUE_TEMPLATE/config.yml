@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or idea
+    url: https://github.com/Sebilopez1/capek/discussions
+    about: Ask how to use Capek, share results, or suggest something open-ended.
+  - name: Security problem
+    url: https://github.com/Sebilopez1/capek/security/advisories/new
+    about: Please report security issues privately, not as a public issue.

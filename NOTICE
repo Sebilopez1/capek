@@ -1,6 +1,6 @@
-Robot Report Card
+Capek
 Copyright 2026 Sebi Lopez
 
 This product includes the SO-101 robot model (MJCF and meshes) from
 TheRobotStudio SO-ARM100, licensed under the Apache License 2.0.
-See src/robot_report_card/sim/assets/so101/LICENSE and SOURCE.md.
+See src/capek/sim/assets/so101/LICENSE and SOURCE.md.

@@ -1,0 +1,28 @@
+# Redirect package: `pip install robot-report-card` now installs Capek (renamed in 0.2.0).
+# Published once by .github/workflows/release.yml (skip-existing keeps later releases from failing).
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "robot-report-card"
+version = "0.2.0"
+description = "Renamed to Capek: pip install capek-tech. This package only installs capek-tech."
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.10"
+authors = [{ name = "Sebi Lopez" }]
+classifiers = ["Development Status :: 7 - Inactive"]
+dependencies = ["capek-tech>=0.2.0"]
+
+[project.optional-dependencies]
+sim = ["capek-tech[sim]>=0.2.0"]
+lerobot = ["capek-tech[lerobot]>=0.2.0"]
+score = ["capek-tech[score]>=0.2.0"]
+eval = ["capek-tech[eval]>=0.2.0"]
+
+[project.urls]
+Homepage = "https://github.com/Sebilopez1/capek"
+
+[tool.hatch.build.targets.wheel]
+bypass-selection = true

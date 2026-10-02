@@ -25,14 +25,20 @@ ALLOWED = (
     "CHANGELOG.md",
     "CONTRIBUTING.md",
     "SECURITY.md",
-    "RELEASE.md",
+    "docs/dev/RELEASE.md",
     "docs/launch/*.md",
 )
 # files that mention the placeholder by name (the tooling itself); never rewritten
 EXEMPT = ("tools/set_github_owner.py", "tools/release_check.py", "tests/test_p4_1_packaging.py")
 # crew records (plans, briefs, reviews, milestones, STATUS) talk *about* the placeholder; they are history, not
 # release links, so they are neither rewritten nor counted
-EXEMPT_GLOBS = ("STATUS.md", "docs/phase*.md", "docs/research-brief.md", "docs/reviews/*.md", "docs/milestones/*.md")
+EXEMPT_GLOBS = (
+    "docs/dev/STATUS.md",
+    "docs/dev/phase*.md",
+    "docs/dev/research-brief.md",
+    "docs/dev/reviews/*.md",
+    "docs/dev/milestones/*.md",
+)
 OWNER_RE = re.compile(r"^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$")  # GitHub user/org name rules
 
 
@@ -71,7 +77,7 @@ def occurrences(root: Path = ROOT) -> dict[str, int]:
 
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("owner", nargs="?", help="GitHub user or organization that will own robot-report-card")
+    p.add_argument("owner", nargs="?", help="GitHub user or organization that will own capek")
     p.add_argument(
         "--check",
         action="store_true",

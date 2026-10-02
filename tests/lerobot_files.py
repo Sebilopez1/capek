@@ -89,12 +89,12 @@ def write_dataset(
             pq.write_table(t, path)
     (root / "meta" / "info.json").write_text(json.dumps(info))
     if tags is not None:
-        (root / "meta" / "rrc_tags.json").write_text(json.dumps(tags))
+        (root / "meta" / "capek_tags.json").write_text(json.dumps(tags))
     return root
 
 
 def v3_to_v2(src: Path, dst: Path, version: str = "v2.1") -> Path:
-    """Copy a v3.0 dataset (e.g. an `rrc export`) into the per-episode v2.x layout."""
+    """Copy a v3.0 dataset (e.g. a `capek export`) into the per-episode v2.x layout."""
     import pyarrow as pa
     import pyarrow.compute as pc
     import pyarrow.parquet as pq
@@ -110,8 +110,8 @@ def v3_to_v2(src: Path, dst: Path, version: str = "v2.1") -> Path:
     info["codebase_version"] = version
     info["data_path"] = "data/chunk-{episode_chunk:03d}/episode_{episode_index:06d}.parquet"
     (Path(dst) / "meta" / "info.json").write_text(json.dumps(info))
-    if (Path(src) / "meta" / "rrc_tags.json").is_file():
-        shutil.copy(Path(src) / "meta" / "rrc_tags.json", Path(dst) / "meta" / "rrc_tags.json")
+    if (Path(src) / "meta" / "capek_tags.json").is_file():
+        shutil.copy(Path(src) / "meta" / "capek_tags.json", Path(dst) / "meta" / "capek_tags.json")
     return Path(dst)
 
 

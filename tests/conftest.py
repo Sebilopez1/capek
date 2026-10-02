@@ -16,22 +16,22 @@ from pathlib import Path  # noqa: E402
 
 import pytest  # noqa: E402
 
-ACT_STEPS_FULL = 300  # RRC_ACT_FULL=1 repeats the research brief's 300-step run (about 1 min)
+ACT_STEPS_FULL = 300  # CAPEK_ACT_FULL=1 repeats the research brief's 300-step run (about 1 min)
 
 
 @pytest.fixture(scope="session")
 def tiny_act(tmp_path_factory) -> Path:
-    """A state-only ACT trained by `lerobot_train` on a small rrc export (P3-7 smoke test; not a quality claim).
+    """A state-only ACT trained by `lerobot_train` on a small capek export (P3-7 smoke test; not a quality claim).
 
-    Default: 20 steps with a tiny model (~15 s). ``RRC_ACT_FULL=1``: the brief's 300-step configuration.
+    Default: 20 steps with a tiny model (~15 s). ``CAPEK_ACT_FULL=1``: the brief's 300-step configuration.
     Returns the ``.../checkpoints/<step>/pretrained_model`` directory. Skips when mujoco/lerobot are missing.
     """
     pytest.importorskip("mujoco")
     pytest.importorskip("lerobot.datasets.lerobot_dataset")
-    from robot_report_card.export.lerobot_writer import export_session, quiet_lerobot
-    from robot_report_card.policies import make_policy
-    from robot_report_card.record import new_session, record_into
-    from robot_report_card.sim.registry import make_env
+    from capek.export.lerobot_writer import export_session, quiet_lerobot
+    from capek.policies import make_policy
+    from capek.record import new_session, record_into
+    from capek.sim.registry import make_env
 
     root = tmp_path_factory.mktemp("act")
     env = make_env("so101_reach")
@@ -39,7 +39,7 @@ def tiny_act(tmp_path_factory) -> Path:
     record_into(session, env, make_policy("scripted", noise=0.02), 8, 42000, 90)
     with quiet_lerobot():
         export_session(root / "session", root / "ds", "local/act_smoke")
-    full = os.environ.get("RRC_ACT_FULL") == "1"
+    full = os.environ.get("CAPEK_ACT_FULL") == "1"
     steps = ACT_STEPS_FULL if full else 20
     model = (
         ["--policy.chunk_size=20", "--policy.n_action_steps=20", "--policy.dim_model=128",

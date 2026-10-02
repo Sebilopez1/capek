@@ -1,4 +1,4 @@
-"""P4-5 (QA-owned): `rrc report` rules test, written from docs/phase4-plan.md "Report-card rules (D2)".
+"""P4-5 (QA-owned): `capek report` rules test, written from docs/dev/phase4-plan.md "Report-card rules (D2)".
 
 Inputs are schema-exact: they come from the real phase 2 / phase 3 JSON builders (`score.report.build_json`,
 `eval.report.eval_json` / `compare_json` / `compare_stats`) fed with synthetic results, so every row is one rule's
@@ -19,12 +19,12 @@ from typing import Any
 import numpy as np
 import pytest
 
-from robot_report_card import cli
-from robot_report_card.eval.report import compare_json, compare_stats, eval_json
-from robot_report_card.eval.runner import EpisodeOutcome, RolloutResult
-from robot_report_card.score.engine import SIGNALS, EpisodeScore, ScoreConfig, ScoreResult
-from robot_report_card.score.reader import Dataset, EpisodeData
-from robot_report_card.score.report import build_json
+from capek import cli
+from capek.eval.report import compare_json, compare_stats, eval_json
+from capek.eval.runner import EpisodeOutcome, RolloutResult
+from capek.score.engine import SIGNALS, EpisodeScore, ScoreConfig, ScoreResult
+from capek.score.reader import Dataset, EpisodeData
+from capek.score.report import build_json
 
 N_EPISODES, T = 100, 90
 MACHINE = {"platform": "test", "machine": "x86_64", "python": "3.11", "numpy": np.__version__, "mujoco": None,

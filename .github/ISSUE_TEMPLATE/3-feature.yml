@@ -1,0 +1,20 @@
+name: Feature request
+description: Suggest something Capek should do. For open-ended ideas, Discussions may fit better.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: Describe the situation, not the solution. For example "I can't tell whether my new checkpoint is better".
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would help?
+  - type: textarea
+    id: context
+    attributes:
+      label: Your setup
+      description: Robot, task, dataset size, policy type (ACT, diffusion, ...).

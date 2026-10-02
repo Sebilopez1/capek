@@ -1,11 +1,11 @@
-# Tests for robot-report-card. NOTE: this workflow has not yet run on GitHub (written and linted offline).
+# Tests for capek (light matrix on Linux + macOS, and a heavy CPU-torch job).
 name: tests
 
 on:
   push:
   pull_request:
   schedule:
-    - cron: "17 4 * * 1"  # weekly: full benchmark bars (RRC_BENCH_FULL=1)
+    - cron: "17 4 * * 1"  # weekly: full benchmark bars (CAPEK_BENCH_FULL=1)
   workflow_dispatch:
 
 permissions:
@@ -68,6 +68,6 @@ jobs:
       - name: Full benchmark bars (weekly / manual)
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         env:
-          RRC_BENCH_FULL: "1"
-          RRC_E2E_FULL: "1"
+          CAPEK_BENCH_FULL: "1"
+          CAPEK_E2E_FULL: "1"
         run: uv run --no-sync pytest -q tests/test_p2_3_bench.py tests/test_p3_1_bench.py tests/test_p3_8_e2e.py

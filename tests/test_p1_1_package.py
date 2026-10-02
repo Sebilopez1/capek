@@ -9,9 +9,9 @@ import numpy as np
 import pytest
 from helpers import make_synthetic_session, synthetic_episode
 
-from robot_report_card import __version__, cli
-from robot_report_card.session import EpisodeMeta, Session, SessionError
-from robot_report_card.sim.assets import so101_xml_path
+from capek import __version__, cli
+from capek.session import EpisodeMeta, Session, SessionError
+from capek.sim.assets import so101_xml_path
 
 
 def test_help_lists_four_subcommands(capsys: pytest.CaptureFixture[str]) -> None:
@@ -30,7 +30,7 @@ def test_version(capsys: pytest.CaptureFixture[str]) -> None:
 
 
 def test_console_script_runs() -> None:
-    r = subprocess.run([sys.executable, "-m", "robot_report_card.cli", "--help"], capture_output=True, text=True)
+    r = subprocess.run([sys.executable, "-m", "capek.cli", "--help"], capture_output=True, text=True)
     assert r.returncode == 0 and "export" in r.stdout
 
 

@@ -1,9 +1,9 @@
 """Research spike: plug-in adapter that runs a LeRobot (0.4.4) pretrained policy directory in so101_reach.
 
     adapter = LeRobotAdapter(path)          # a `.../checkpoints/NNNNNN/pretrained_model` dir (or a Hub id, if online)
-    adapter.reset(); a = adapter.act(obs)   # obs: robot_report_card Observation -> np.ndarray joint targets (rad)
+    adapter.reset(); a = adapter.act(obs)   # obs: capek Observation -> np.ndarray joint targets (rad)
 
-The rrc evaluator only needs this 2-method protocol (reset per episode, act per frame); our BC MLP implements the
+The capek evaluator only needs this 2-method protocol (reset per episode, act per frame); our BC MLP implements the
 same protocol. Loading follows lerobot_eval: config from `config.json`, weights via `Policy.from_pretrained`,
 normalization via the saved pre/post-processor pipelines (`make_pre_post_processors(cfg, pretrained_path=...)`).
 
@@ -51,7 +51,7 @@ class LeRobotAdapter:
 
 
 def rollout_success(adapter, n: int, base: int = 900_000, T: int = 90) -> np.ndarray:
-    from robot_report_card.sim.registry import make_env
+    from capek.sim.registry import make_env
     env = make_env("so101_reach")
     out = np.zeros(n, bool)
     for i in range(n):

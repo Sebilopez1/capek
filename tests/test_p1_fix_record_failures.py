@@ -1,4 +1,4 @@
-"""QA R3/R4 regressions: `rrc record` fails cleanly (no traceback, valid session) - no mujoco needed."""
+"""QA R3/R4 regressions: `capek record` fails cleanly (no traceback, valid session) - no mujoco needed."""
 
 from __future__ import annotations
 
@@ -8,9 +8,9 @@ from pathlib import Path
 import pytest
 from helpers import FakeEnv, make_synthetic_session
 
-from robot_report_card import cli
-from robot_report_card.session import Session, SessionError, SessionInfo
-from robot_report_card.sim import registry
+from capek import cli
+from capek.session import Session, SessionError, SessionInfo
+from capek.sim import registry
 
 
 @pytest.fixture
@@ -47,7 +47,7 @@ def test_record_divergence_exits_cleanly_with_saved_count(tmp_path: Path, capsys
 
 
 def test_record_oserror_exits_cleanly(tmp_path: Path, capsys, fake_env, monkeypatch) -> None:
-    from robot_report_card import session as session_mod
+    from capek import session as session_mod
 
     real = session_mod.atomic_write
     calls = {"n": 0}
@@ -74,7 +74,7 @@ def test_record_nan_metadata_never_orphans_npz(tmp_path: Path, fake_env) -> None
     assert Session.open(out).read_metas() == []
 
 
-INFO = SessionInfo(env_id="t", fps=30, features={}, seeding="t", created_at="t", rrc_version="t")
+INFO = SessionInfo(env_id="t", fps=30, features={}, seeding="t", created_at="t", capek_version="t")
 
 
 def test_session_create_refuses_file_path_and_non_empty_dir(tmp_path: Path) -> None:
@@ -113,5 +113,5 @@ def test_record_out_refusals_are_clean(tmp_path: Path, capsys, fake_env, layout:
     before = sorted(str(p) for p in tmp_path.rglob("*"))
     assert cli.main(["record", "--episodes", "1", "--out", str(out)]) == 1
     err = capsys.readouterr().err
-    assert err.startswith("rrc: error:") and "Traceback" not in err
+    assert err.startswith("capek: error:") and "Traceback" not in err
     assert sorted(str(p) for p in tmp_path.rglob("*")) == before

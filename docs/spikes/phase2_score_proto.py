@@ -1,7 +1,7 @@
 """Research spike (not production code): phase 2 per-episode motion-quality signals (plan D5, 7 signals).
 Reads a LeRobot v3.0 dataset with pyarrow + numpy only (no lerobot/torch); normalisation is data-derived
 (per-joint q01-q99 of observation.state, per-joint min/max of action), so it also works without stats.json.
-Constants in CFG were chosen on benchmark-v2 DEV seeds only (docs/phase2-research-brief.md §4).
+Constants in CFG were chosen on benchmark-v2 DEV seeds only (docs/dev/phase2-research-brief.md §4).
 Run:  python phase2_score_proto.py <dataset_root>        -> prints flagged episodes with reasons
 Verified 2026-09-24, Python 3.11, numpy 2.3.5, pyarrow 25.0.1.
 """

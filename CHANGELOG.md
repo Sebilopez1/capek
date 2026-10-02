@@ -3,6 +3,34 @@
 All notable changes to this project are listed here. The format follows [Keep a Changelog](https://keepachangelog.com/),
 and versions follow [Semantic Versioning](https://semver.org/). Before 1.0, minor versions may change the CLI.
 
+## [0.2.0] — unreleased
+
+Robot Report Card is now **Capek**, named after Karel Čapek, whose 1920 play *R.U.R.* gave us the word "robot".
+
+### Changed
+- PyPI package `robot-report-card` → `capek-tech`; command `rrc` → `capek`; Python package `robot_report_card` →
+  `capek`; GitHub repository `robot-report-card` → `capek` (GitHub redirects the old URLs).
+- New files use the new names: `meta/capek_tags.json`, `capek_policy.json`, `*.capek_score.json` /
+  `*.capek_eval.json` / `*.capek_compare.json`, `capek_report.json`, and the `capek_version` JSON field. The `tool`
+  field in JSON reports is now `capek`.
+- `robot-report-card` 0.2.0 is a redirect package that only installs `capek-tech` (extras map one to one).
+
+### Compatibility
+- Everything written by 0.1.0 still loads: sessions (`rrc_version`), exported datasets (`meta/rrc_tags.json`),
+  `bc:` checkpoints (`rrc_policy.json`) and score / eval / compare reports (`"tool": "robot-report-card"`).
+- The `rrc` command is gone. Replace `rrc` with `capek` in scripts.
+- One-way: once 0.2.0 writes to a 0.1.0 session (`capek tag`, `capek record --append`), 0.1.0 can no longer read it.
+- Contributor environment variables are renamed: `RRC_BENCH_FULL`, `RRC_E2E_FULL`, `RRC_ACT_FULL`, `RRC_REDACTIONS`
+  → `CAPEK_*`. The release check's default denylist is `~/.capek_redactions.txt`; `~/.rrc_redactions.txt` and
+  `$RRC_REDACTIONS` still work.
+
+### Added
+- README: FAQ, citation (`CITATION.cff`), Discussions link, acknowledgements, light/dark visuals.
+- Code of conduct, issue forms (wrong score, bug, feature) and a pull request template.
+
+### Moved
+- Crew records (`STATUS.md`, `RELEASE.md`, plans, research briefs, reviews, milestones) now live in `docs/dev/`.
+
 ## [0.1.0] — 2026-10-01
 
 First public release (alpha).

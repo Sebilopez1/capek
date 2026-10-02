@@ -8,7 +8,7 @@ scipy is used ONLY by the coverage study in __main__).
     mcnemar_power(n, p10, p01)         exact power of McNemar at alpha for a paired design (for MDE statements)
     mde_paired(n, p_base, rho_disc)    smallest improvement detectable with 80% power
 
-Run `python phase3_stats.py` for the coverage study and the MDE table quoted in docs/phase3-research-brief.md.
+Run `python phase3_stats.py` for the coverage study and the MDE table quoted in docs/dev/phase3-research-brief.md.
 """
 from __future__ import annotations
 

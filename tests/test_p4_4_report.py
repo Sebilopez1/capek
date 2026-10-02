@@ -1,4 +1,4 @@
-"""P4-4: `rrc report` CLI behaviour on real rrc JSON (the D2 rules themselves are QA's P4-5 test)."""
+"""P4-4: `capek report` CLI behaviour on real capek JSON (the D2 rules themselves are QA's P4-5 test)."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ pytest.importorskip("mujoco")
 
 from lerobot_files import smooth_reach, write_dataset  # noqa: E402
 
-from robot_report_card import cli  # noqa: E402
+from capek import cli  # noqa: E402
 
 
 @pytest.fixture(scope="module")
@@ -81,8 +81,8 @@ def test_eval_only_is_inconclusive_missing(reports: Path, tmp_path: Path) -> Non
     "argv, message",
     [
         ([], "give at least one of --score, --eval, --compare"),
-        (["--compare", "{score}"], "is not an `rrc compare` JSON report"),
-        (["--score", "{cmp}"], "is not an `rrc score` JSON report"),
+        (["--compare", "{score}"], "is not a `capek compare` JSON report"),
+        (["--score", "{cmp}"], "is not a `capek score` JSON report"),
         (["--score", "{missing}"], "can't read"),
         (["--score", "{bad}"], "is not valid JSON"),
         (["--score", "{score}", "--train-seeds", "0"], "--train-seeds must be >= 1"),
@@ -104,4 +104,4 @@ def test_outputs_are_not_overwritten_without_flag(reports: Path, tmp_path: Path,
     assert cli.main(["report", "--score", str(reports / "score.json"), "--md", str(md), "--json"]) == 1
     assert "--overwrite" in capsys.readouterr().err and md.read_text() == "keep"
     assert cli.main(["report", "--score", str(reports / "score.json"), "--md", str(md), "--json", "--overwrite"]) == 0
-    assert json.loads(capsys.readouterr().out)["kind"] == "report" and md.read_text().startswith("# Robot Report Card")
+    assert json.loads(capsys.readouterr().out)["kind"] == "report" and md.read_text().startswith("# Capek")

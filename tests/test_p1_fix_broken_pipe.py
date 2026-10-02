@@ -1,4 +1,4 @@
-"""PM report: `rrc list runs/demo | head` must not print a BrokenPipeError traceback."""
+"""PM report: `capek list runs/demo | head` must not print a BrokenPipeError traceback."""
 
 from __future__ import annotations
 
@@ -10,10 +10,10 @@ from pathlib import Path
 import pytest
 from helpers import make_synthetic_session, synthetic_episode
 
-from robot_report_card import cli
-from robot_report_card.session import Session
+from capek import cli
+from capek.session import Session
 
-RRC = [sys.executable, "-m", "robot_report_card.cli"]
+CAPEK = [sys.executable, "-m", "capek.cli"]
 
 
 @pytest.fixture
@@ -34,7 +34,7 @@ def big_session(tmp_path: Path) -> Path:
 def test_list_piped_into_head_exits_quietly(big_session: Path, extra: list[str]) -> None:
     env = {**os.environ, "HF_HUB_OFFLINE": "1"}
     proc = subprocess.Popen(
-        [*RRC, "list", str(big_session), *extra], stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env
+        [*CAPEK, "list", str(big_session), *extra], stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env
     )
     assert proc.stdout is not None and proc.stderr is not None
     first = proc.stdout.readline()  # like `head -1`: read a little, then close the pipe
@@ -47,7 +47,7 @@ def test_list_piped_into_head_exits_quietly(big_session: Path, extra: list[str])
 
 
 def test_shell_pipe_to_head(big_session: Path) -> None:
-    cmd = " ".join([*RRC, "list", str(big_session)]) + " | head -3"
+    cmd = " ".join([*CAPEK, "list", str(big_session)]) + " | head -3"
     r = subprocess.run(["bash", "-o", "pipefail", "-c", cmd], capture_output=True, text=True)
     assert len(r.stdout.splitlines()) == 3 and r.stderr == ""
     assert r.returncode == cli.EXIT_BROKEN_PIPE

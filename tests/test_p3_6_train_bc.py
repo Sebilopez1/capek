@@ -1,4 +1,4 @@
-"""P3-6: `rrc train-bc` and the `bc:` policy."""
+"""P3-6: `capek train-bc` and the `bc:` policy."""
 
 from __future__ import annotations
 
@@ -17,17 +17,17 @@ pytest.importorskip("mujoco")
 pytest.importorskip("lerobot.datasets.lerobot_dataset")
 pytest.importorskip("pyarrow")
 
-from robot_report_card import cli  # noqa: E402
-from robot_report_card.eval.report import RECIPE_CAVEAT  # noqa: E402
+from capek import cli  # noqa: E402
+from capek.eval.report import RECIPE_CAVEAT  # noqa: E402
 
 
 @pytest.fixture(scope="module")
 def work(tmp_path_factory) -> Path:
     """60 clean + 5 noise 0.25 + 5 wrong (bench generators), exported and scored once."""
-    from robot_report_card.bench.generators import GroupPolicy
-    from robot_report_card.export.lerobot_writer import export_session, quiet_lerobot
-    from robot_report_card.record import new_session, record_into
-    from robot_report_card.sim.registry import make_env
+    from capek.bench.generators import GroupPolicy
+    from capek.export.lerobot_writer import export_session, quiet_lerobot
+    from capek.record import new_session, record_into
+    from capek.sim.registry import make_env
 
     root = tmp_path_factory.mktemp("bc")
     env = make_env("so101_reach")
@@ -42,7 +42,7 @@ def work(tmp_path_factory) -> Path:
 
 def _train(work: Path, name: str, *extra: str) -> dict:
     assert cli.main(["train-bc", str(work / "ds"), "--out", str(work / name), *extra]) == 0
-    return json.loads((work / name / "rrc_policy.json").read_text())
+    return json.loads((work / name / "capek_policy.json").read_text())
 
 
 def test_checkpoint_format_and_speed(work: Path) -> None:
@@ -84,7 +84,7 @@ def test_trained_checkpoint_beats_random_and_caveat_for_two_checkpoints(work: Pa
 TRAIN_AND_EVAL = textwrap.dedent(
     """
     import json, sys
-    from robot_report_card import cli
+    from capek import cli
     ds, out, threads, report = sys.argv[1:5]
     assert cli.main(["train-bc", ds, "--out", out, "--epochs", "3", "--threads", threads]) == 0
     assert cli.main(["eval", "bc:" + out, "--episodes", "12", "--threads", threads, "--json-out", report]) == 0
@@ -107,7 +107,7 @@ def test_same_seed_same_weights_and_rollouts_across_processes(work: Path) -> Non
             env={**os.environ, "HF_HUB_OFFLINE": "1"},
         )
         assert r.returncode == 0, r.stderr
-        meta = json.loads((out / "rrc_policy.json").read_text())
+        meta = json.loads((out / "capek_policy.json").read_text())
         rep = json.loads(report.read_text())
         assert meta["train"]["threads"] == int(threads) and rep["machine"]["torch_threads"] == int(threads)
         results.append((meta["weights_sha256"], rep["episodes"]))
@@ -130,7 +130,7 @@ def test_filters_fail_cleanly(work: Path, tmp_path: Path, capsys) -> None:
 
     blind = tmp_path / "blind"
     shutil.copytree(ds, blind)
-    (blind / "meta" / "rrc_tags.json").unlink()
+    (blind / "meta" / "capek_tags.json").unlink()
     for f in blind.glob("data/*/*.parquet"):
         t = pq.read_table(f)
         pq.write_table(t.drop_columns(["next.success"]), f)
@@ -158,7 +158,7 @@ def test_out_dir_and_report_path_protection(work: Path, tmp_path: Path, capsys) 
     busy.mkdir()
     (busy / "notes.txt").write_text("x")
     assert cli.main(["train-bc", str(work / "ds"), "--out", str(busy), "--overwrite"]) == 1
-    assert "not an rrc checkpoint" in capsys.readouterr().err
+    assert "not a capek checkpoint" in capsys.readouterr().err
     assert cli.main(["eval", f"bc:{out}", "--episodes", "1", "--json-out", str(out / "r.json")]) == 1
     assert "inside" in capsys.readouterr().err
     (out / "model.pt").write_bytes(b"garbage")
@@ -169,7 +169,7 @@ def test_out_dir_and_report_path_protection(work: Path, tmp_path: Path, capsys) 
 def test_train_bc_without_torch_is_a_clean_error(work: Path, tmp_path: Path, monkeypatch, capsys) -> None:
     monkeypatch.setitem(sys.modules, "torch", None)
     assert cli.main(["train-bc", str(work / "ds"), "--out", str(tmp_path / "z")]) == 1
-    assert 'pip install "robot-report-card[eval]"' in capsys.readouterr().err
+    assert 'pip install "capek-tech[eval]"' in capsys.readouterr().err
 
 
 BLOCK_TORCH = textwrap.dedent(
@@ -180,7 +180,7 @@ BLOCK_TORCH = textwrap.dedent(
             if name.split(".")[0] == "torch":
                 raise ImportError("torch blocked")
     sys.meta_path.insert(0, Block())
-    from robot_report_card import cli
+    from capek import cli
     out = sys.argv[1]
     assert cli.main(["record", "--episodes", "3", "--out", out + "/s", "-q"]) == 0
     assert cli.main(["tag", out + "/s", "-e", "1", "--label", "fail"]) == 0
@@ -200,7 +200,7 @@ def test_record_tag_score_and_scripted_eval_run_without_torch(work: Path, tmp_pa
 
 # ---- QA phase 3 review N4-N6 ---------------------------------------------------------------------------------------
 def test_failed_overwrite_keeps_the_old_checkpoint(work: Path, tmp_path: Path, monkeypatch) -> None:
-    from robot_report_card.eval import bc
+    from capek.eval import bc
 
     out = tmp_path / "ck"
     assert cli.main(["train-bc", str(work / "ds"), "--out", str(out), "--epochs", "1"]) == 0
@@ -218,14 +218,14 @@ def test_failed_overwrite_keeps_the_old_checkpoint(work: Path, tmp_path: Path, m
     assert (
         cli.main(["train-bc", str(work / "ds"), "--out", str(out), "--epochs", "1", "--overwrite", "--seed", "3"]) == 0
     )
-    assert json.loads((out / "rrc_policy.json").read_text())["train"]["seed"] == 3
+    assert json.loads((out / "capek_policy.json").read_text())["train"]["seed"] == 3
     assert sorted(p.name for p in tmp_path.iterdir()) == ["ck"]
 
 
 def test_wrong_architecture_is_refused_at_load(tmp_path: Path, capsys) -> None:
     import numpy as np
 
-    from robot_report_card.eval.bc import build_mlp, weights_sha256
+    from capek.eval.bc import build_mlp, weights_sha256
 
     model = build_mlp(torch, np.zeros(7), np.ones(7), np.zeros(6), np.ones(6))
     ck = tmp_path / "ck7"
@@ -233,7 +233,7 @@ def test_wrong_architecture_is_refused_at_load(tmp_path: Path, capsys) -> None:
     torch.save(model.state_dict(), ck / "model.pt")
     meta = {"arch": {"inputs": 7, "hidden": [256, 256], "outputs": 6}, "weights_sha256": weights_sha256(model),
             "normalization": {"x_mu": [0.0] * 7, "x_sd": [1.0] * 7, "y_mu": [0.0] * 6, "y_sd": [1.0] * 6}}  # fmt: skip
-    (ck / "rrc_policy.json").write_text(json.dumps(meta))
+    (ck / "capek_policy.json").write_text(json.dumps(meta))
     assert cli.main(["eval", f"bc:{ck}", "--episodes", "1", "--json-out", str(tmp_path / "r.json")]) == 1
     err = capsys.readouterr().err
     assert "maps 7 inputs to 6 outputs; so101_reach needs 9" in err and "Traceback" not in err
@@ -250,10 +250,10 @@ def test_corrupt_weights_error_is_one_line(work: Path, tmp_path: Path, capsys) -
 
 
 def test_bc_metadata_carries_kept_episode_indices(work: Path) -> None:
-    from robot_report_card.eval.policies import load_policy
+    from capek.eval.policies import load_policy
 
     if not (work / "clean").exists():
         _train(work, "clean", "--keep", "ok-and-success", "--score-json", str(work / "score.json"))
-    meta = json.loads((work / "clean" / "rrc_policy.json").read_text())
+    meta = json.loads((work / "clean" / "capek_policy.json").read_text())
     md = load_policy(f"bc:{work / 'clean'}").metadata()
     assert md["kept_episode_indices"] == meta["kept_episodes"] and md["kept_episodes"] == len(meta["kept_episodes"])

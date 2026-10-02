@@ -1,23 +1,23 @@
 #!/usr/bin/env python3
-"""Pre-release check for robot-report-card. It builds and tests locally and NEVER uploads or publishes anything.
+"""Pre-release check for capek. It builds and tests locally and NEVER uploads or publishes anything.
 
     python tools/release_check.py                 # everything (about 2-4 min, needs network for the venv installs)
     python tools/release_check.py --skip-suite    # skip the light test suite from the sdist
-    RRC_REDACTIONS=~/redactions.txt python tools/release_check.py
+    CAPEK_REDACTIONS=~/redactions.txt python tools/release_check.py
 
 Steps (each PASS/FAIL in the final table):
   build        sdist + wheel (uv build, or python -m build)
   twine        `twine check` on both artifacts
   metadata     PEP 639: License-Expression Apache-2.0, 3 license files in dist-info/licenses, version matches
   sdist        ships tests, NOTICE and the two research spikes the parity tests need
-  base-venv    clean venv + wheel only: size <= 100 MB, `rrc --help`, tag/list on a small session,
-               `rrc score` on a dataset prints the PyPI hint for the score extra
+  base-venv    clean venv + wheel only: size <= 100 MB, `capek --help`, tag/list on a small session,
+               `capek score` on a dataset prints the PyPI hint for the score extra
   quickstart   clean venv + wheel[score,sim]: record -> tag -> list -> score
   sdist-suite  clean venv + sdist[dev,score,sim]: the light pytest profile, run from the unpacked sdist
   placeholder  no GITHUB_OWNER left (fails until `python tools/set_github_owner.py <owner>`; expected before then)
   redactions   no entry of the redaction denylist (kept outside the repo) appears in any tracked file
 
-The denylist is read from --redactions, else $RRC_REDACTIONS, else ~/.rrc_redactions.txt: one entry per line, `#`
+The denylist is read from --redactions, else $CAPEK_REDACTIONS, else ~/.capek_redactions.txt: one entry per line, `#`
 comments allowed, matched case-insensitively. Its entries are never printed: only entry numbers with file:line, or a
 file's position when the entry is in the file name, plus a count of history commits that still contain an entry.
 """
@@ -42,7 +42,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from set_github_owner import PLACEHOLDER, occurrences, tracked_files  # noqa: E402
 
 BASE_VENV_LIMIT_MB = 100
-DEFAULT_DENYLISTS = ("~/.rrc_redactions.txt",)
+DEFAULT_DENYLISTS = ("~/.capek_redactions.txt", "~/.rrc_redactions.txt")  # second: the 0.1.0 name
 SPIKES = ("docs/spikes/phase2_score_proto.py", "docs/spikes/phase3_stats.py")
 EXPECTED_LICENSES = ("LICENSE", "NOTICE", "so101/LICENSE")
 
@@ -61,10 +61,10 @@ def run(cmd: list[str], cwd: Path | None = None, env: dict[str, str] | None = No
 
 
 def version() -> str:
-    for line in (ROOT / "src/robot_report_card/__init__.py").read_text().splitlines():
+    for line in (ROOT / "src/capek/__init__.py").read_text().splitlines():
         if line.startswith("__version__"):
             return line.split("=")[1].strip().strip("\"'")
-    raise CheckFailed("no __version__ in src/robot_report_card/__init__.py")
+    raise CheckFailed("no __version__ in src/capek/__init__.py")
 
 
 def make_venv(path: Path, python: str) -> Path:
@@ -141,7 +141,7 @@ def step_sdist(ctx: Ctx) -> str:
     assert ctx.sdist
     with tarfile.open(ctx.sdist) as t:
         names = {n.split("/", 1)[1] for n in t.getnames() if "/" in n}
-    need = [*SPIKES, "NOTICE", "LICENSE", "tests/conftest.py", "src/robot_report_card/__init__.py"]
+    need = [*SPIKES, "NOTICE", "LICENSE", "tests/conftest.py", "src/capek/__init__.py"]
     missing = [n for n in need if n not in names]
     if missing:
         raise CheckFailed(f"sdist lacks {missing}")
@@ -151,8 +151,8 @@ def step_sdist(ctx: Ctx) -> str:
 def _synthetic_session(bin_dir: Path, where: Path) -> None:
     code = (
         "import sys, numpy as np\n"
-        "from robot_report_card.features import make_features\n"
-        "from robot_report_card.session import Episode, EpisodeMeta, Session, SessionInfo\n"
+        "from capek.features import make_features\n"
+        "from capek.session import Episode, EpisodeMeta, Session, SessionInfo\n"
         "n = [f'j{i}' for i in range(6)]\n"
         "info = SessionInfo('synthetic', 30, make_features(n, ['x', 'y', 'z'], n), 't', 't', 't')\n"
         "s = Session.create(sys.argv[1], info)\n"
@@ -171,21 +171,21 @@ def step_base_venv(ctx: Ctx) -> str:
     bin_dir = make_venv(venv, ctx.python)
     pip_install(bin_dir, str(ctx.wheel))
     size = dir_mb(venv)
-    rrc = str(bin_dir / "rrc")
-    run([rrc, "--help"])
+    capek = str(bin_dir / "capek")
+    run([capek, "--help"])
     _synthetic_session(bin_dir, ctx.work / "base-session")
-    run([rrc, "tag", str(ctx.work / "base-session"), "-e", "1", "--label", "fail", "--note", "release check"])
-    listing = run([rrc, "list", str(ctx.work / "base-session")])
+    run([capek, "tag", str(ctx.work / "base-session"), "-e", "1", "--label", "fail", "--note", "release check"])
+    listing = run([capek, "list", str(ctx.work / "base-session")])
     if "release check" not in listing:
-        raise CheckFailed("rrc list doesn't show the tag")
+        raise CheckFailed("capek list doesn't show the tag")
     fake = ctx.work / "fake-dataset"  # a real layout; reading it needs pyarrow, which the base install lacks
     (fake / "data" / "chunk-000").mkdir(parents=True)
     (fake / "data" / "chunk-000" / "file-000.parquet").write_bytes(b"")
     (fake / "meta").mkdir()
     (fake / "meta" / "info.json").write_text(json.dumps({"codebase_version": "v3.0", "fps": 30}))
-    out = run([rrc, "score", str(fake), "--json-out", str(ctx.work / "x.json")], check=False)
-    if 'pip install "robot-report-card[score]"' not in out:
-        raise CheckFailed(f"`rrc score` without pyarrow didn't print the PyPI hint: {out.strip()}")
+    out = run([capek, "score", str(fake), "--json-out", str(ctx.work / "x.json")], check=False)
+    if 'pip install "capek-tech[score]"' not in out:
+        raise CheckFailed(f"`capek score` without pyarrow didn't print the PyPI hint: {out.strip()}")
     if size > BASE_VENV_LIMIT_MB:
         raise CheckFailed(f"base venv is {size:.0f} MB (> {BASE_VENV_LIMIT_MB} MB)")
     return f"{size:.0f} MB; --help, tag/list, score hint OK"
@@ -195,15 +195,15 @@ def step_quickstart(ctx: Ctx) -> str:
     venv = ctx.work / "venv-quickstart"
     bin_dir = make_venv(venv, ctx.python)
     pip_install(bin_dir, f"{ctx.wheel}[score,sim]")
-    rrc = str(bin_dir / "rrc")
+    capek = str(bin_dir / "capek")
     q = ctx.work / "quickstart"
     q.mkdir()
-    run([rrc, "record", "--env", "so101_reach", "--policy", "scripted", "--episodes", "10", "--seed", "0",
+    run([capek, "record", "--env", "so101_reach", "--policy", "scripted", "--episodes", "10", "--seed", "0",
          "--out", "runs/demo", "-q"], cwd=q)  # fmt: skip
-    run([rrc, "tag", "runs/demo", "--episode", "3", "--label", "fail", "--note", "overshot"], cwd=q)
-    if "overshot" not in run([rrc, "list", "runs/demo"], cwd=q):
-        raise CheckFailed("rrc list doesn't show the tag")
-    # `rrc score` needs a LeRobot dataset; without the lerobot extra, write a small v3.0 one with pyarrow
+    run([capek, "tag", "runs/demo", "--episode", "3", "--label", "fail", "--note", "overshot"], cwd=q)
+    if "overshot" not in run([capek, "list", "runs/demo"], cwd=q):
+        raise CheckFailed("capek list doesn't show the tag")
+    # `capek score` needs a LeRobot dataset; without the lerobot extra, write a small v3.0 one with pyarrow
     writer = (
         "import json, sys, numpy as np, pyarrow as pa, pyarrow.parquet as pq\n"
         "from pathlib import Path\n"
@@ -223,9 +223,9 @@ def step_quickstart(ctx: Ctx) -> str:
         " 'total_frames': 1080, 'features': {'observation.state': feat, 'action': feat}}))\n"
     )
     run([str(bin_dir / "python"), "-c", writer, str(q / "datasets/demo")])
-    out = run([rrc, "score", "datasets/demo"], cwd=q)
-    if "Motion quality can't detect" not in out or not (q / "demo.rrc_score.json").is_file():
-        raise CheckFailed("rrc score output incomplete")
+    out = run([capek, "score", "datasets/demo"], cwd=q)
+    if "Motion quality can't detect" not in out or not (q / "demo.capek_score.json").is_file():
+        raise CheckFailed("capek score output incomplete")
     return f"{dir_mb(venv):.0f} MB; record -> tag -> list -> score OK"
 
 
@@ -255,7 +255,8 @@ def step_placeholder(ctx: Ctx) -> str:
 
 
 def find_denylist(explicit: str | None) -> Path | None:
-    for candidate in (explicit, os.environ.get("RRC_REDACTIONS"), *DEFAULT_DENYLISTS):
+    env = (os.environ.get("CAPEK_REDACTIONS"), os.environ.get("RRC_REDACTIONS"))  # second: the 0.1.0 name
+    for candidate in (explicit, *env, *DEFAULT_DENYLISTS):
         if candidate and Path(candidate).expanduser().is_file():
             return Path(candidate).expanduser()
     return None
@@ -290,7 +291,7 @@ def read_denylist(path: Path) -> list[str]:
 def step_redactions(ctx: Ctx, explicit: str | None) -> str:
     path = find_denylist(explicit)
     if path is None:
-        raise CheckFailed("no redaction denylist found (pass --redactions PATH or set RRC_REDACTIONS)")
+        raise CheckFailed("no redaction denylist found (pass --redactions PATH or set CAPEK_REDACTIONS)")
     entries = read_denylist(path)
     if not entries:
         raise CheckFailed(f"denylist {path} has no entries")
@@ -326,12 +327,12 @@ def history_commits(entries: list[str], root: Path = ROOT) -> int:
 # ---- main -------------------------------------------------------------------------------------------------------
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--redactions", help="denylist file (default: $RRC_REDACTIONS, then ~/.rrc_redactions.txt)")
+    p.add_argument("--redactions", help="denylist file (default: $CAPEK_REDACTIONS, then ~/.capek_redactions.txt)")
     p.add_argument("--python", default=sys.executable, help="interpreter for the clean venvs (default: this one)")
     p.add_argument("--skip-suite", action="store_true", help="skip the light test suite from the sdist")
     p.add_argument("--keep", action="store_true", help="keep the work directory (printed at the end)")
     args = p.parse_args(argv)
-    work = Path(tempfile.mkdtemp(prefix="rrc-release-check-"))
+    work = Path(tempfile.mkdtemp(prefix="capek-release-check-"))
     ctx = Ctx(work, args.python)
     steps: list[tuple[str, Callable[[], str], tuple[str, ...]]] = [
         ("build", lambda: step_build(ctx), ()),

@@ -1,4 +1,4 @@
-"""P1-2: so101_reach env, policies, `rrc record`."""
+"""P1-2: so101_reach env, policies, `capek record`."""
 
 from __future__ import annotations
 
@@ -11,12 +11,12 @@ import pytest
 
 pytest.importorskip("mujoco")
 
-from robot_report_card import cli  # noqa: E402
-from robot_report_card.policies import make_policy  # noqa: E402
-from robot_report_card.record import episode_seeds, record_episode  # noqa: E402
-from robot_report_card.session import EpisodeMeta, Session  # noqa: E402
-from robot_report_card.sim.base import EnvAdapter  # noqa: E402
-from robot_report_card.sim.registry import make_env  # noqa: E402
+from capek import cli  # noqa: E402
+from capek.policies import make_policy  # noqa: E402
+from capek.record import episode_seeds, record_episode  # noqa: E402
+from capek.session import EpisodeMeta, Session  # noqa: E402
+from capek.sim.base import EnvAdapter  # noqa: E402
+from capek.sim.registry import make_env  # noqa: E402
 
 N_RATE = 50
 
@@ -95,7 +95,7 @@ def test_exact_frame_count_and_metadata(env, max_steps: int) -> None:
     for f in fields(EpisodeMeta):
         assert getattr(m, f.name) is not None, f.name
     assert m.env_id == "so101_reach" and m.policy_name == "random" and m.termination_reason == "max_steps"
-    assert m.duration_s == pytest.approx(max_steps / 30) and m.fps == 30 and m.recorded_at and m.rrc_version
+    assert m.duration_s == pytest.approx(max_steps / 30) and m.fps == 30 and m.recorded_at and m.capek_version
     assert m.policy_params["noise"] == 0.0 and m.label == "unlabeled"
     assert m.sim_success == bool(ep.arrays["next.success"][-1, 0])
     assert m.final_error_m == pytest.approx(-float(ep.arrays["next.reward"][-1, 0]), abs=1e-6)

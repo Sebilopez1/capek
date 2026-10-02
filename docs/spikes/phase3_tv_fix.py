@@ -1,6 +1,6 @@
 """Research spike: R-real-1 (action_tv_ratio false-flags return-to-home motions) — compare denominators.
 
-Builds the production benchmark v2 (robot_report_card.bench generators, QA's fixed wrong/stall) for a seed set,
+Builds the production benchmark v2 (capek.bench generators, QA's fixed wrong/stall) for a seed set,
 plus a new `return_home` group (reach out, short hold, come back to the start pose; clean motion, same noise
 spread as clean), in memory, and scores it with docs/spikes/phase2_score_proto.py (numerics identical to the
 P2-5 engine) under tv_mode = net (current) / max_exc / split. Reports the DoD 4 bars and the return_home flag rate.
@@ -19,12 +19,12 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 spec = importlib.util.spec_from_file_location("P", os.path.join(HERE, "phase2_score_proto.py"))
 P = importlib.util.module_from_spec(spec); spec.loader.exec_module(P)
 
-import robot_report_card.bench.generators as GEN
-from robot_report_card.bench.generators import GroupPolicy
-from robot_report_card.bench.spec import CLEAN_ONLY, MIXED, SEED_SETS
-from robot_report_card.policies import ScriptedReach
-from robot_report_card.record import record_episode
-from robot_report_card.sim.registry import make_env
+import capek.bench.generators as GEN
+from capek.bench.generators import GroupPolicy
+from capek.bench.spec import CLEAN_ONLY, MIXED, SEED_SETS
+from capek.policies import ScriptedReach
+from capek.record import record_episode
+from capek.sim.registry import make_env
 
 JUNK = ("noise010", "noise025", "random", "hesitation")
 

@@ -1,8 +1,8 @@
-# Publish robot-report-card to PyPI with trusted publishing (OIDC): no API tokens or secrets are stored.
-# NOTE: this workflow has not yet run on GitHub. Before the first release, Sebi (see RELEASE.md):
-#   1. creates the GitHub environment `pypi` with himself as required reviewer, and
-#   2. registers a pending publisher on PyPI: repository <owner>/robot-report-card, workflow release.yml,
-#      environment pypi (and the same on TestPyPI with environment testpypi for the dry run).
+# Publish capek-tech to PyPI with trusted publishing (OIDC): no API tokens or secrets are stored.
+# It also publishes the one-off redirect package `robot-report-card` 0.2.0 (redirect/), which only installs
+# capek-tech; skip-existing makes later releases leave it alone.
+# Both PyPI projects need a trusted publisher for repository <owner>/capek, workflow release.yml,
+# environment pypi (and the same on TestPyPI with environment testpypi for the dry run). See docs/dev/RELEASE.md.
 # The publish job only starts when a GitHub release is published, and then waits for the `pypi` approval.
 name: release
 
@@ -25,12 +25,19 @@ jobs:
       - uses: astral-sh/setup-uv@v5
       - name: Build sdist and wheel
         run: uv build
+      - name: Build the robot-report-card redirect package
+        run: uv build redirect --out-dir dist-redirect
       - name: twine check
-        run: uvx twine check --strict dist/*
+        run: uvx twine check --strict dist/* dist-redirect/*
       - uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist/
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-redirect
+          path: dist-redirect/
           if-no-files-found: error
 
   testpypi:
@@ -40,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: testpypi
-      url: https://test.pypi.org/p/robot-report-card
+      url: https://test.pypi.org/p/capek-tech
     permissions:
       id-token: write
     steps:
@@ -59,7 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/robot-report-card
+      url: https://pypi.org/p/capek-tech
     permissions:
       id-token: write
     steps:
@@ -68,3 +75,46 @@ jobs:
           name: dist
           path: dist/
       - uses: pypa/gh-action-pypi-publish@release/v1
+
+  # The robot-report-card redirect gets its own jobs so a failed upload (e.g. its publisher not yet repointed to
+  # repository capek) can be re-run alone without re-uploading capek-tech.
+  testpypi-redirect:
+    name: publish robot-report-card redirect to TestPyPI (dry run)
+    if: github.event_name == 'workflow_dispatch'
+    needs: testpypi
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/robot-report-card
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-redirect
+          path: dist-redirect/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          packages-dir: dist-redirect/
+          skip-existing: true
+
+  pypi-redirect:
+    name: publish robot-report-card redirect to PyPI
+    if: github.event_name == 'release'
+    needs: pypi
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/robot-report-card
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-redirect
+          path: dist-redirect/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist-redirect/
+          skip-existing: true

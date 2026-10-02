@@ -1,4 +1,4 @@
-"""P1-4: `rrc export` fails cleanly when lerobot isn't importable (runs whether or not it is installed)."""
+"""P1-4: `capek export` fails cleanly when lerobot isn't importable (runs whether or not it is installed)."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 from helpers import make_synthetic_session
 
-from robot_report_card import cli
+from capek import cli
 
 
 def test_missing_lerobot_gives_clear_error(tmp_path: Path, monkeypatch, capsys) -> None:
@@ -17,16 +17,16 @@ def test_missing_lerobot_gives_clear_error(tmp_path: Path, monkeypatch, capsys) 
     monkeypatch.setitem(sys.modules, "lerobot.datasets.lerobot_dataset", None)  # import -> ImportError
     assert cli.main(["export", str(tmp_path / "s"), "--out", str(tmp_path / "ds")]) == 1
     err = capsys.readouterr().err
-    assert 'pip install "robot-report-card[lerobot]"' in err and "Traceback" not in err
+    assert 'pip install "capek-tech[lerobot]"' in err and "Traceback" not in err
     assert not (tmp_path / "ds").exists()
 
 
-# ---- QA R1: --overwrite must never delete the session or a directory rrc did not write --------------------
+# ---- QA R1: --overwrite must never delete the session or a directory capek did not write --------------------
 # These refusals happen before lerobot is imported, so they run with or without the lerobot extra.
-def _fake_rrc_dataset(root: Path, tool: str = "robot-report-card") -> None:
+def _fake_capek_dataset(root: Path, tool: str = "capek") -> None:
     (root / "meta").mkdir(parents=True, exist_ok=True)
     (root / "meta" / "info.json").write_text('{"codebase_version": "v3.0"}')
-    (root / "meta" / "rrc_tags.json").write_text(json.dumps({"schema_version": 1, "tool": tool}))
+    (root / "meta" / "capek_tags.json").write_text(json.dumps({"schema_version": 1, "tool": tool}))
 
 
 def _snapshot(root: Path) -> list[str]:
@@ -36,7 +36,7 @@ def _snapshot(root: Path) -> list[str]:
 def test_overwrite_refuses_when_out_is_the_session(tmp_path: Path, capsys) -> None:
     d = tmp_path / "D"
     make_synthetic_session(d, n=2)
-    _fake_rrc_dataset(d)  # B1 layout 1: S == D and D looks like an rrc dataset
+    _fake_capek_dataset(d)  # B1 layout 1: S == D and D looks like a capek dataset
     before = _snapshot(tmp_path)
     assert cli.main(["export", str(d), "--out", str(d), "--overwrite"]) == 1
     assert "overlaps the session" in capsys.readouterr().err
@@ -45,7 +45,7 @@ def test_overwrite_refuses_when_out_is_the_session(tmp_path: Path, capsys) -> No
 
 def test_overwrite_refuses_when_session_is_inside_out(tmp_path: Path, capsys) -> None:
     d = tmp_path / "D"
-    _fake_rrc_dataset(d)
+    _fake_capek_dataset(d)
     make_synthetic_session(d / "runs" / "s", n=2)  # B1 layout 2: S = D/runs/s
     before = _snapshot(tmp_path)
     assert cli.main(["export", str(d / "runs" / "s"), "--out", str(d), "--overwrite"]) == 1
@@ -63,28 +63,28 @@ def test_out_inside_session_is_refused(tmp_path: Path, capsys) -> None:
 
 
 @pytest.mark.parametrize("kind", ["foreign_lerobot", "other_tool", "corrupt_tags"])
-def test_overwrite_refuses_datasets_rrc_did_not_write(tmp_path: Path, capsys, kind: str) -> None:
+def test_overwrite_refuses_datasets_capek_did_not_write(tmp_path: Path, capsys, kind: str) -> None:
     make_synthetic_session(tmp_path / "s", n=1)
     d = tmp_path / "hub_download"
     if kind == "foreign_lerobot":
         (d / "meta").mkdir(parents=True)
         (d / "meta" / "info.json").write_text('{"codebase_version": "v3.0"}')
     elif kind == "other_tool":
-        _fake_rrc_dataset(d, tool="someone-else")
+        _fake_capek_dataset(d, tool="someone-else")
     else:
-        _fake_rrc_dataset(d)
-        (d / "meta" / "rrc_tags.json").write_text("{not json")
+        _fake_capek_dataset(d)
+        (d / "meta" / "capek_tags.json").write_text("{not json")
     before = _snapshot(d)
     assert cli.main(["export", str(tmp_path / "s"), "--out", str(d), "--overwrite"]) == 1
     err = capsys.readouterr().err
-    assert "not a dataset exported by rrc" in err and "delete it yourself" in err
+    assert "not a dataset exported by capek" in err and "delete it yourself" in err
     assert _snapshot(d) == before
 
 
 def test_overwrite_refuses_symlinked_out(tmp_path: Path, capsys) -> None:
     make_synthetic_session(tmp_path / "s", n=1)
     real = tmp_path / "real"
-    _fake_rrc_dataset(real)
+    _fake_capek_dataset(real)
     link = tmp_path / "link"
     link.symlink_to(real, target_is_directory=True)
     assert cli.main(["export", str(tmp_path / "s"), "--out", str(link), "--overwrite"]) == 1

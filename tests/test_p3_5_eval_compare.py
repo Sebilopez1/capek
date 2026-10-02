@@ -1,4 +1,4 @@
-"""P3-5: `rrc eval` / `rrc compare` (policy protocol, runner, paired statistics wording, JSON)."""
+"""P3-5: `capek eval` / `capek compare` (policy protocol, runner, paired statistics wording, JSON)."""
 
 from __future__ import annotations
 
@@ -15,9 +15,9 @@ import pytest
 
 pytest.importorskip("mujoco")
 
-from robot_report_card import cli  # noqa: E402
-from robot_report_card.eval.report import RECIPE_CAVEAT, compare_stats, mde_sentence, verdict  # noqa: E402
-from robot_report_card.eval.runner import EpisodeOutcome, RolloutResult  # noqa: E402
+from capek import cli  # noqa: E402
+from capek.eval.report import RECIPE_CAVEAT, compare_stats, mde_sentence, verdict  # noqa: E402
+from capek.eval.runner import EpisodeOutcome, RolloutResult  # noqa: E402
 
 DEFINITION = (
     "success = gripper tip within 2 cm of the target on the final frame (90 frames, 3 s); "
@@ -125,12 +125,12 @@ def test_existing_json_out_is_refused(tmp_path: Path, capsys) -> None:
 def test_default_path_and_json_stdout(tmp_path: Path, monkeypatch, capsys) -> None:
     monkeypatch.chdir(tmp_path)
     assert cli.main(["eval", "random", "--episodes", "2"]) == 0
-    assert (tmp_path / "random.rrc_eval.json").is_file()
+    assert (tmp_path / "random.capek_eval.json").is_file()
     assert cli.main(["eval", "random", "--episodes", "2"]) == 1  # second run needs --overwrite
     capsys.readouterr()
     assert cli.main(["compare", "scripted", "random", "--episodes", "2", "--json"]) == 0
     assert json.loads(capsys.readouterr().out)["kind"] == "compare"
-    assert sorted(p.name for p in tmp_path.iterdir()) == ["random.rrc_eval.json"]
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["random.capek_eval.json"]
 
 
 @pytest.mark.parametrize(
@@ -149,8 +149,8 @@ def test_bad_arguments(tmp_path: Path, capsys, argv: list[str], message: str) ->
     assert message in err and "Traceback" not in err
 
 
-RRC = (
-    "import sys; from robot_report_card import cli; rc = cli.main(sys.argv[1:]); "
+CAPEK = (
+    "import sys; from capek import cli; rc = cli.main(sys.argv[1:]); "
     "print('TORCH', 'torch' in sys.modules, file=sys.stderr); sys.exit(rc)"
 )
 
@@ -160,7 +160,7 @@ def test_same_results_across_processes_and_no_torch_for_scripted(tmp_path: Path)
     for k in range(2):
         out = tmp_path / f"r{k}.json"
         r = subprocess.run(
-            [sys.executable, "-c", RRC, "compare", "scripted", "random", "--episodes", "15", "--json-out", str(out)],
+            [sys.executable, "-c", CAPEK, "compare", "scripted", "random", "--episodes", "15", "--json-out", str(out)],
             capture_output=True,
             text=True,
             env={**os.environ, "OMP_NUM_THREADS": str(k + 1)},

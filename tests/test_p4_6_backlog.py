@@ -1,4 +1,4 @@
-"""P4-6 backlog: N3 (`rrc record --append` checks that the session's existing episode files are present)."""
+"""P4-6 backlog: N3 (`capek record --append` checks that the session's existing episode files are present)."""
 
 from __future__ import annotations
 
@@ -7,9 +7,9 @@ from pathlib import Path
 import pytest
 from helpers import FakeEnv
 
-from robot_report_card import cli
-from robot_report_card.session import Session
-from robot_report_card.sim import registry
+from capek import cli
+from capek.session import Session
+from capek.sim import registry
 
 
 @pytest.fixture

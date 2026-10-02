@@ -1,6 +1,6 @@
 """P2-3 (QA-owned): benchmark v2 builder, DoD 4 evaluator, real-like / corrupt fixtures.
 
-The full dev benchmark + bars run only with RRC_BENCH_FULL=1 (about 35 s); QA runs held-out and private sets by hand.
+The full dev benchmark + bars run only with CAPEK_BENCH_FULL=1 (about 35 s); QA runs held-out and private sets by hand.
 """
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from robot_report_card.bench.evaluate import EvalError, auroc, evaluate
+from capek.bench.evaluate import EvalError, auroc, evaluate
 
 
 # ---- evaluator on hand-checked toy inputs (no sim, no lerobot) -------------------------------------------------
@@ -103,7 +103,7 @@ def _write(tmp_path: Path, name: str, obj: object) -> str:
     ["swapped_arguments", "gt_without_dataset", "episode_without_index", "non_default_flag_z", "clean_only_flag_z"],
 )
 def test_malformed_evaluator_input_exits_2(tmp_path: Path, case: str, capsys) -> None:
-    from robot_report_card.bench.__main__ import main
+    from capek.bench.__main__ import main
 
     report, gt = _toy(_groups([0.0] * 20, ["ok"] * 20))
     clean_report, clean_gt = _toy({"clean": ("clean", [0.0] * 20, ["ok"] * 20)})
@@ -128,7 +128,7 @@ def test_malformed_evaluator_input_exits_2(tmp_path: Path, case: str, capsys) ->
 
 
 def test_valid_toy_files_exit_0_and_failing_bars_exit_1(tmp_path: Path) -> None:
-    from robot_report_card.bench.__main__ import main
+    from capek.bench.__main__ import main
 
     report, gt = _toy(_groups([0.0] * 20, ["ok"] * 20))
     clean_report, clean_gt = _toy({"clean": ("clean", [0.0] * 20, ["ok"] * 20)})
@@ -139,19 +139,19 @@ def test_valid_toy_files_exit_0_and_failing_bars_exit_1(tmp_path: Path) -> None:
 
 
 def test_check_exits_2_when_there_is_nothing_to_score(tmp_path: Path, capsys) -> None:
-    from robot_report_card.bench.__main__ import main
+    from capek.bench.__main__ import main
 
     assert main(["check", str(tmp_path / "no_benchmark_here")]) == 2
     assert "run `bench build` first" in capsys.readouterr().err
     bad = tmp_path / "broken" / "mixed" / "dataset" / "meta"
     bad.mkdir(parents=True)
     (bad / "info.json").write_text(json.dumps({"codebase_version": "v1.6", "fps": 30}))
-    assert main(["check", str(tmp_path / "broken")]) == 2  # rrc score itself fails -> bad input, not "bars failed"
-    assert "rrc score" in capsys.readouterr().err
+    assert main(["check", str(tmp_path / "broken")]) == 2  # capek score itself fails -> bad input, not "bars failed"
+    assert "capek score" in capsys.readouterr().err
 
 
 def test_private_seed_file_must_not_overlap_published(tmp_path: Path) -> None:
-    from robot_report_card.bench.build import BenchError, resolve_seeds
+    from capek.bench.build import BenchError, resolve_seeds
 
     f = tmp_path / "seeds.json"
     f.write_text(json.dumps({"mixed": 1003, "clean_only": 777777}))
@@ -169,7 +169,7 @@ _SMALL_BENCH: dict[str, Path] = {}  # shared by every module that imports small_
 def small_bench(tmp_path_factory) -> Path:
     pytest.importorskip("mujoco")
     pytest.importorskip("lerobot")
-    from robot_report_card.bench.build import build
+    from capek.bench.build import build
 
     if "path" not in _SMALL_BENCH:
         out = tmp_path_factory.mktemp("bench") / "small"
@@ -178,9 +178,9 @@ def small_bench(tmp_path_factory) -> Path:
     return _SMALL_BENCH["path"]
 
 
-def test_small_build_layout_and_gt_matches_rrc_tags(small_bench: Path) -> None:
+def test_small_build_layout_and_gt_matches_capek_tags(small_bench: Path) -> None:
     gt = json.loads((small_bench / "mixed" / "gt.json").read_text())
-    tags = json.loads((small_bench / "mixed" / "dataset" / "meta" / "rrc_tags.json").read_text())
+    tags = json.loads((small_bench / "mixed" / "dataset" / "meta" / "capek_tags.json").read_text())
     assert gt["dataset"] == {"path": "dataset", "total_episodes": 50, "total_frames": 50 * 90}
     assert not (small_bench / "mixed" / "dataset" / "gt.json").exists()  # ground truth stays outside the dataset
     counts: dict[str, int] = {}
@@ -205,9 +205,9 @@ def test_small_build_layout_and_gt_matches_rrc_tags(small_bench: Path) -> None:
 
 
 def test_build_is_deterministic(small_bench: Path, tmp_path: Path) -> None:
-    from robot_report_card.bench.build import _record
-    from robot_report_card.bench.spec import MIXED
-    from robot_report_card.session import Session
+    from capek.bench.build import _record
+    from capek.bench.spec import MIXED
+    from capek.session import Session
 
     _record(tmp_path / "again", MIXED, 1000, small=True)
     a, b = Session.open(small_bench / "mixed" / "session"), Session.open(tmp_path / "again")
@@ -216,15 +216,15 @@ def test_build_is_deterministic(small_bench: Path, tmp_path: Path) -> None:
         assert all(xa[k].tobytes() == xb[k].tobytes() for k in xa), i
 
 
-def test_scorer_does_not_depend_on_rrc_tags_metadata(small_bench: Path, tmp_path: Path) -> None:
-    """rrc_tags.json carries bench_group in policy_params; scores must be identical without it (no gt leak)."""
+def test_scorer_does_not_depend_on_capek_tags_metadata(small_bench: Path, tmp_path: Path) -> None:
+    """capek_tags.json carries bench_group in policy_params; scores must be identical without it (no gt leak)."""
     pytest.importorskip("pyarrow")
-    from robot_report_card.score.engine import ScoreConfig, score_dataset
-    from robot_report_card.score.reader import read_dataset
+    from capek.score.engine import ScoreConfig, score_dataset
+    from capek.score.reader import read_dataset
 
     stripped = tmp_path / "stripped"
     shutil.copytree(small_bench / "mixed" / "dataset", stripped)
-    (stripped / "meta" / "rrc_tags.json").unlink()
+    (stripped / "meta" / "capek_tags.json").unlink()
     a = score_dataset(read_dataset(small_bench / "mixed" / "dataset"), ScoreConfig())
     b = score_dataset(read_dataset(stripped), ScoreConfig())
     assert [(e.combined, e.quality, e.reasons) for e in a.episodes] == [
@@ -232,9 +232,9 @@ def test_scorer_does_not_depend_on_rrc_tags_metadata(small_bench: Path, tmp_path
     ]
 
 
-def test_check_command_runs_rrc_score_and_evaluates(small_bench: Path, capsys) -> None:
+def test_check_command_runs_capek_score_and_evaluates(small_bench: Path, capsys) -> None:
     pytest.importorskip("pyarrow")
-    from robot_report_card.bench.__main__ import main
+    from capek.bench.__main__ import main
 
     code = main(["check", str(small_bench), "--json"])
     r = json.loads(capsys.readouterr().out)
@@ -246,9 +246,9 @@ def test_check_command_runs_rrc_score_and_evaluates(small_bench: Path, capsys) -
 
 def test_realify_fixtures(small_bench: Path, tmp_path: Path) -> None:
     pytest.importorskip("pyarrow")
-    from robot_report_card.bench.realify import CORRUPT, realify
-    from robot_report_card.score.engine import ScoreConfig, score_dataset
-    from robot_report_card.score.reader import read_dataset
+    from capek.bench.realify import CORRUPT, realify
+    from capek.score.engine import ScoreConfig, score_dataset
+    from capek.score.reader import read_dataset
 
     man = realify(small_bench / "mixed" / "dataset", tmp_path / "rl")
     src = read_dataset(small_bench / "mixed" / "dataset")
@@ -278,7 +278,7 @@ def test_realify_fixtures(small_bench: Path, tmp_path: Path) -> None:
     trunc = read_dataset(tmp_path / "rl" / "truncated")
     cut = man["truncated"]["truncated_episodes"]
     assert len(cut) == round(0.2 * 50) and all(trunc.episodes[e].length < 90 for e in cut)
-    assert trunc.tags is not None  # rrc_tags fingerprint updated, labels still usable
+    assert trunc.tags is not None  # capek_tags fingerprint updated, labels still usable
     score_dataset(trunc, ScoreConfig())  # DoD 6 (b): variable lengths score without error
     for kind, (ep, expected) in CORRUPT.items():
         r = score_dataset(read_dataset(tmp_path / "rl" / kind), ScoreConfig())
@@ -286,11 +286,11 @@ def test_realify_fixtures(small_bench: Path, tmp_path: Path) -> None:
         assert hard == {ep: [expected]}, (kind, hard)
 
 
-@pytest.mark.skipif(os.environ.get("RRC_BENCH_FULL") != "1", reason="full benchmark: set RRC_BENCH_FULL=1 (~35 s)")
+@pytest.mark.skipif(os.environ.get("CAPEK_BENCH_FULL") != "1", reason="full benchmark: set CAPEK_BENCH_FULL=1 (~35 s)")
 def test_full_dev_benchmark_meets_dod4_bars(tmp_path: Path) -> None:
     pytest.importorskip("mujoco")
     pytest.importorskip("lerobot")
-    from robot_report_card.bench.__main__ import main
+    from capek.bench.__main__ import main
 
     assert main(["build", "--out", str(tmp_path / "dev"), "--seeds", "dev"]) == 0
     assert main(["check", str(tmp_path / "dev")]) == 0
@@ -298,7 +298,7 @@ def test_full_dev_benchmark_meets_dod4_bars(tmp_path: Path) -> None:
 
 def test_wrong_goal_distribution_matches_env_targets() -> None:
     pytest.importorskip("mujoco")
-    from robot_report_card.bench.generators import TARGET_FRACTION
-    from robot_report_card.sim.so101_reach import TARGET_RANGE_FRACTION
+    from capek.bench.generators import TARGET_FRACTION
+    from capek.sim.so101_reach import TARGET_RANGE_FRACTION
 
     assert TARGET_FRACTION == TARGET_RANGE_FRACTION
